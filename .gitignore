@@ -1,0 +1,10 @@
+*geany
+/misc
+/*/misc
+/tmp
+/*/tmp
+
+/.project
+/.pydevproject
+
+*.pyc
