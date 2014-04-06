@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+
+export DH_VERBOSE=1
+export DH_OPTIONS=-v
+
+# Directory ch.root, to be used while build.
+export DESTDIR=$(CURDIR)/debian/script-crypt
+
+export DEB_MAKE_INSTALL_TARGET=install
+
+# CDBS file: /usr/share/cdbs/1/rules/debhelper.mk
+include ./cdbs-defaults/debhelper.mk
+
+# CDBS file: include /usr/share/cdbs/1/class/makefile.mk
+include ./cdbs-defaults/makefile.mk

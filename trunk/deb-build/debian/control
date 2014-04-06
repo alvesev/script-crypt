@@ -1,0 +1,14 @@
+Source: script-crypt
+Section: main
+Priority: standart
+Maintainer: Alex Vesev <alex.vesev@gmail.com>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.3
+Homepage: https://github.com/alvesev
+
+Package: script-crypt
+Architecture: all
+Depends: python3
+Description: Script Crypt - some helpers and utilities to assist in everbeings.
+ Script Crypt - some helpers and utilities to assist in everbeings.
+

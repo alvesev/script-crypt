@@ -1,0 +1,38 @@
+How to do it from scratch.
+
+Generate template files:
+
+        dh_make --yes --createorig --single --packagename package-name_0.1
+
+Edit files:
+
+        debian/control
+        debian/changelog
+        debian/copyright
+        debian/rules
+        and may be other files
+
+Generate package (it will not be signed with PGP):
+
+        dpkg-buildpackage -b -us -uc
+
+The packages to be generated are stored in the build directory tree. One may google out the discussion on where they are stired. May be there is a sence to do:
+
+        mv --force "../package-name_0.1_amd64.deb" "."
+        mv --force "../package-name_0.1_amd64.changes" "."
+
+Or so:
+        mv --force "./package-name_0.1_amd64.deb" ".."
+        mv --force "./package-name_0.1_amd64.changes" ".."
+
+Do cleanup:
+
+        make clean
+
+Check the files are on board:
+
+        dpkg -c package-name_0.1_amd64.deb
+
+One may do:
+
+    fakeroot ./do-it-to-create-the-package.sh

@@ -1,0 +1,5 @@
+script-crypt (1) wheezy; urgency=low
+
+  * Initial release with configuration file processor - set, get value.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Sun, 06 Mar 2014 20:05:53 +0400

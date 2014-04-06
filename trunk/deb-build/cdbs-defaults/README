@@ -1,0 +1,30 @@
+Files here are obtained from package 'cdbs'. Package description is below.
+
+Package: cdbs
+Priority: optional
+Section: devel
+Installed-Size: 283
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Original-Maintainer: CDBS Hackers <build-common-hackers@lists.alioth.debian.org>
+Architecture: all
+Version: 0.4.100ubuntu2
+Depends: dh-translations, python-scour
+Recommends: autotools-dev
+Suggests: devscripts
+Filename: pool/main/c/cdbs/cdbs_0.4.100ubuntu2_all.deb
+Size: 47578
+MD5sum: 88623d86dfe8c6f942c10ceb129be163
+SHA1: 8ff71b1428449b3b2fe1b84eb9f7cd358351ea77
+SHA256: 793cddf5d0c99415f4b5f09f181af8275e38ec24646031a875c84f6b23d37486
+Description-en: common build system for Debian packages
+ This package contains the Common Debian Build System, an abstract build
+ system based on Makefile inheritance which is completely extensible and
+ overridable.  In other words, CDBS provides a sane set of default rules
+ upon which packages can build; any or all rules may be overridden as
+ needed.
+Multi-Arch: foreign
+Description-md5: 600297a26a1bc2bcf29442cdb6deb9f8
+Bugs: https://bugs.launchpad.net/ubuntu/+filebug
+Origin: Ubuntu
+Supported: 5y
+
