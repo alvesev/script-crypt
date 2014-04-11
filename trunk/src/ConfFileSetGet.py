@@ -25,9 +25,13 @@
 import argparse
 import configparser
 
+aboutText = '''
+Utility for setting up a value for an option in a configuration file, or - get a value. Configuration file syntax intended to be 'ini'.
+'''
+
 knownActionNames = ('set', 'get')
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(description=aboutText)
 parser.add_argument('-a', '--action', dest='action', required=True,
                         help="Action to be performed - set or get.")
 parser.add_argument('-f', '--file', dest='fileName', required=True,
