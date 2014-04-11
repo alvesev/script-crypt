@@ -1,5 +1,12 @@
+script-crypt (2) precise; urgency=low
+
+  * Long file names searcher added.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Fri, 11 Apr 2014 19:40:00 +0400
+
 script-crypt (1) wheezy; urgency=low
 
   * Initial release with configuration file processor - set, get value.
 
  -- Alex Vesev <alex.vesev@gmail.com>  Sun, 06 Mar 2014 20:05:53 +0400
+ 
