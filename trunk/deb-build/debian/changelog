@@ -1,3 +1,9 @@
+script-crypt (3) precise; urgency=low
+
+  * APK files version extractor and renamer added.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Wen, 08 Mar 2017 14:27:00 +0400
+
 script-crypt (2) precise; urgency=low
 
   * Long file names searcher added.
@@ -9,4 +15,3 @@ script-crypt (1) wheezy; urgency=low
   * Initial release with configuration file processor - set, get value.
 
  -- Alex Vesev <alex.vesev@gmail.com>  Sun, 06 Mar 2014 20:05:53 +0400
- 
