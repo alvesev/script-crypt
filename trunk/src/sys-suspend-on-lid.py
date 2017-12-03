@@ -92,7 +92,7 @@ for exe_file in ("/usr/bin/sudo",
                  "/usr/bin/xscreensaver-command",
                  "/usr/bin/wmctrl"):
     if not which(exe_file):
-        l.error("Suspend action executable '{}' not found in PATH or at all.".format(lid_closed_action_script))
+        l.error("Executable '{}' not found in PATH or at all.".format(exe_file))
         exit(1)
 
 if os.fork():
