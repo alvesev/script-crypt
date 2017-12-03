@@ -42,7 +42,6 @@ import logging
 file_log = "/var/log/sys-suspend-on-lid.log"
 size_log = 1*1024*1024
 lid_state_yaml = "/proc/acpi/button/lid/LID/state"
-lid_closed_action_script = "/home/.opt/sys-suspend"
 
 
 # # #
@@ -89,9 +88,12 @@ l.addHandler(flh)
 l.setLevel(level)
 
 l.info("Starting lid state watching. Using flag from '{}'. Log file is '{}'.".format(lid_state_yaml, file_log))
-if not which(lid_closed_action_script):
-    l.error("Suspend action executable '{}' not found in PATH or at all.".format(lid_closed_action_script))
-    exit(1)
+for exe_file in ("/usr/bin/sudo",
+                 "/usr/bin/xscreensaver-command",
+                 "/usr/bin/wmctrl"):
+    if not which(exe_file):
+        l.error("Suspend action executable '{}' not found in PATH or at all.".format(lid_closed_action_script))
+        exit(1)
 
 if os.fork():
     sys.exit()
@@ -107,8 +109,10 @@ while True:
     if lid_conf["state"] == "open":
         sleep(1)
     elif lid_conf["state"] == "closed":
-        l.info("Lid has been {}. Trigerring '{}'.".format(lid_conf["state"], lid_closed_action_script))
-        system("sudo '{}' 2>>'{}' 1>>'{}'".format(lid_closed_action_script, file_log, file_log))
+        l.info("Lid has been {}.".format(lid_conf["state"]))
+        system("wmctrl -k on")  # Minimize all windows.
+        #system("xscreensaver-command -lock")
+        system("sudo /usr/sbin/pm-suspend")
         is_after_sleep = True
     else:
         l.error("Unknown lid state '{}'.".format(lid_conf["state"]))
