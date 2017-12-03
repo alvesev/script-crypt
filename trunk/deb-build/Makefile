@@ -17,6 +17,7 @@ install:
 	install --owner=root --group=root --mode=755 --verbose $(DIR_ORIGIN)/upgrade-ubu.py $(DESTDIR)/usr/bin/upgrade-ubu
 	install --owner=root --group=root --mode=755 --verbose $(DIR_ORIGIN)/if-speed $(DESTDIR)/usr/bin/if-speed
 	install --owner=root --group=root --mode=755 --verbose $(DIR_ORIGIN)/sys-suspend-on-lid.py $(DESTDIR)/usr/bin/sys-suspend-on-lid
+	install --owner=root --group=root --mode=755 --verbose $(DIR_ORIGIN)/encrypt-for-emailing $(DESTDIR)/usr/bin/encrypt-for-emailing
 	install --owner=root --group=root --mode=644 --verbose $(DIR_ORIGIN)/settings/custom-exec-path.sh   $(DESTDIR)/etc/profile.d/custom-exec-path.sh
 	install --owner=root --group=root --mode=755 --verbose $(DIR_ORIGIN)/settings/sys-suspend-on-lid.sh $(DESTDIR)/etc/init.d/sys-suspend-on-lid
 	ln -s /etc/init.d/sys-suspend-on-lid $(DESTDIR)/etc/rc3.d/S07sys-suspend-on-lid

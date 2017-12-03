@@ -1,0 +1,200 @@
+#!/usr/bin/python3
+
+from os import walk, system
+from os.path import basename, dirname, join as pJoin, \
+                    splitext, abspath, expanduser
+import sys
+import argparse
+import traceback
+import re
+import zipfile
+import gnupg
+import logging
+
+logging.basicConfig(format="%(filename)s:%(lineno)s: %(message)s", level="INFO")
+l = logging.getLogger('root')
+
+# # #
+ # #
+# #
+ #
+#
+
+def getCLIArgs():
+    mainHelpText = """
+This is assistant in converting of files into state unrecognizable by e-mail filtering.
+
+If you want to e-mail an APK and recive the letter at Android device and so on.
+
+TODO: implement assembling back with this script too.
+"""
+
+    parser = argparse.ArgumentParser(description=mainHelpText)
+    parser.add_argument('-i', '--dir-input',
+                        dest='dir_input',
+                        action='store',
+                        required=True,
+                        help="Dir name to be archived.")
+    parser.add_argument('-o', '--dir-output',
+                        dest='dir_out',
+                        action='store',
+                        required=True,
+                        help="Dir name to be archived.")
+    parser.add_argument('-p', '--password',
+                        dest='key_phrase',
+                        action='store',
+                        required=True,
+                        help="Dir name to be archived.")
+    parser.add_argument('-s', '--split-size',
+                        dest='split_size',
+                        default=str(10*1024*1024),
+                        type=str,
+                        action='store',
+                        required=True,
+                        help="Split zip into parts. Could be '10m'. See 'man zip' about '-s' or '--split-size' options.")
+    cliArgs = parser.parse_args()
+
+    return cliArgs
+
+
+def zip_dir(path, fileNameZipContainer):
+    zipFileObj = zipfile.ZipFile(fileNameZipContainer, 'w')
+    for root, dirs, files in walk(path):
+        for file in files:
+            zipFileObj.write(pJoin(root, file))
+    zipFileObj.close()
+    return fileNameZipContainer
+
+
+def split_zip(zipFile, split_size):
+    zipFileSegmented = strip_file_name_suffix(zipFile) + ".SEGMENTED.zip"  # Should have '.zip' suffix.
+    split_cmd_shell = "zip '{}' --out '{}' --split-size '{}'".format(
+                                                    zipFile,
+                                                    zipFileSegmented,
+                                                    split_size)
+    l.info("Launching split: {}".format(split_cmd_shell))
+    system(split_cmd_shell)
+    l.info("Split has been done.")
+    return zipFileSegmented
+
+def encrypt(file_heading, key_phrase, cipher):
+    search_for = strip_file_name_suffix(basename(file_heading))
+    for root, dirs, files in walk(dirname(file_heading)):
+        for f_name in files:
+            if search_for == strip_file_name_suffix(basename(f_name)):
+                encrypt_file(f_name, key_phrase, cipher)
+
+def decrypt(file_heading, key_phrase):
+    search_for = strip_file_name_suffix(basename(file_heading))
+    search_for = strip_file_name_suffix(basename(file_heading))
+    for root, dirs, files in walk(dirname(file_heading)):
+        for f_name in files:
+            if search_for == strip_file_name_suffix(strip_file_name_suffix(basename(filterback_dots(f_name)))):
+                decrypt_file(f_name, key_phrase)
+
+def get_gpg(gpg_home=expanduser("~/.gnupg")):
+    gpg_home = expanduser("~/.gnupg")
+    gpg = gnupg.GPG(gnupghome=gpg_home)
+    return gpg
+
+def encrypt_file(file_name, key_phrase, cipher="AES256"):
+    gpg = get_gpg()
+    file_out = filterout_dots(file_name) + ".encrypted"
+    with open(file_name, "rb") as fh:
+        l.info("Encrypting '{}' into '{}'.".format(file_name,file_out))
+        gpg.encrypt_file(fh, None, passphrase=key_phrase, symmetric=cipher.upper(), output=file_out)
+    return file_out
+
+def decrypt_file(file_name, key_phrase):
+    gpg = get_gpg()
+    file_out = strip_file_name_suffix(filterback_dots(file_name)) + ".decrypted"
+    with open(file_name, "rb") as fh:
+        l.info("Decrypting '{}' into '{}'.".format(file_name,file_out))
+        gpg.decrypt_file(fh, None, passphrase=key_phrase, output=file_out)
+    return file_out
+
+def strip_file_name_suffix(file_name):
+    return splitext(file_name)[0]
+
+def filterout_dots(file_name):
+    dir_name = dirname(file_name)
+    f_name = basename(file_name).replace('.', '__')
+    return pJoin(dir_name, f_name)
+
+def filterback_dots(file_name):
+    dir_name = dirname(file_name)
+    f_name = basename(file_name).replace('__', '.')
+    return pJoin(dir_name, f_name)
+
+# # #
+ # #
+# #
+ #
+#
+
+def main(cli_args):
+    dirNameZipTarget = abspath(cli_args.dir_input)
+    fileNameZipContainer = abspath(cli_args.dir_out)
+    zip_dir(dirNameZipTarget, fileNameZipContainer)
+
+    sys.stderr.write("\n\n")
+    l.info("Donor directory is:\t" + dirNameZipTarget + "\n")
+    l.info("Zip file acceptor is:\t" + fileNameZipContainer + "\n")
+    l.info("See files listing in archive via 'less " + fileNameZipContainer + "'\n")
+    sys.stderr.write("\n\n")
+
+    fileSegmentsHead = split_zip(fileNameZipContainer, cli_args.split_size)
+    l.info("Head part of the splited archive: {}".format(fileSegmentsHead))
+    l.info("UnZip command is: zip --fixfix {} --out restored.zip".format(fileSegmentsHead))
+
+
+    cipher = "AES256"
+    encrypt(fileSegmentsHead, cli_args.key_phrase, cipher)
+    #decrypt(fileSegmentsHead, cli_args.key_phrase)
+
+    l.info("""
+
+Encryption and decription commands:
+
+    gpg --output doc.encrypted --symmetric doc
+
+
+    while read fName ; do \\
+        gpg --passphrase {passw_phrase} --output "$(sed 's/\.encrypted$//' <<< "${{fName}}")" --decrypt "${{fName}}" ; \\
+    done <<< "$( find . -type f -name "*.encrypted" )"
+
+The combination is:
+
+    {passw_phrase}
+
+Rename back with:
+
+    while read fName ; do \\
+        mv "${{fName}}" "$(sed 's/__/./g' <<< "${{fName}}")" ; \\
+    done <<< "$( find . -type f -name "*__*" )"
+
+Repair zip with:
+
+    zip --fixfix last-chunk.zip --out restored.zip
+
+Test integrity:
+
+    zip --test  restored.zip
+
+""".format(passw_phrase=cli_args.key_phrase))
+
+
+# # #
+ # #
+# #
+ #
+#
+
+if __name__ == "__main__":
+    try:
+        main(getCLIArgs())
+    except Exception as e:
+        traceback.format_exc()
+        raise e
+        exit(1)
+    l.info("Job done.")
