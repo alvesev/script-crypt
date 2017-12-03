@@ -175,7 +175,7 @@ def main(cli_args):
 
     l.info("""
 
-Encryption and decription commands:
+Encryption and decryption commands:
 
     gpg --output doc.encrypted --symmetric doc
 
