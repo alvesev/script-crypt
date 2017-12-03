@@ -1,0 +1,72 @@
+#!/bin/bash
+
+#
+#  Copyright 2010-2017 Alex Vesev
+#
+#  This file is part of Script Crypt.
+#
+#  Script Crypt is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Script Crypt is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Script Crypt. If not, see <http://www.gnu.org/licenses/>.
+#
+##
+
+
+declare     name=""
+declare -a  ifaceNamesList
+declare     selectionList=""
+declare -i  selectionListIndex=""
+declare -ai selectedItemNumbersList=""
+declare -i  buttonFeedBack=""
+declare -a  speedometerArguments=""
+declare -i  index=""
+
+declare -r  tmpFile="$( mktemp )"
+trap "rm -f \"${tmpFile}\"" EXIT
+
+while : ; do
+    selectionListIndex="1"
+    selectionList=""
+    ifaceNamesList=( $( ls -1 /sys/class/net/ | grep -v "^lo$" | tr '\n' ' ' ) )
+    for name in "${ifaceNamesList[@]}" ; do
+        [ -z "${name}" ] \
+            && continue
+        selectionList="${selectionList}${selectionListIndex} ${name} off "
+        ((selectionListIndex++))
+    done
+    dialog --title " Interfaces " \
+        --backtitle "${backDialogTitle}" --clear \
+        --cancel-label "Exit" \
+        --checklist "\nSelect interface:" 13 30 6 ${selectionList} \
+            2>"${tmpFile}" \
+                ; buttonFeedBack="${?}"
+    sync "${tmpFile}"
+    echo "" # Nice output formating...
+    [ ${buttonFeedBack} != 0 ] \
+        && exit 0
+
+    selectedItemNumbersList=($( tr --delete '"' < "${tmpFile}" ))
+    if [ ${#selectedItemNumbersList[@]} == 0 ] ; then
+        echo "Information:${0}:${LINENO}: Nothing selected. Select something with Long key, Press Enter key to continue."
+        sleep 0.5
+        continue
+    fi
+
+    # Process selected
+    unset speedometerArguments[@]
+    for index in ${selectedItemNumbersList[@]} ; do
+        ifaceName="${ifaceNamesList[index - 1]}"
+        speedometerArguments[index]="-rx ${ifaceName} -tx ${ifaceName}"
+    done
+
+    speedometer ${speedometerArguments[*]}
+done
