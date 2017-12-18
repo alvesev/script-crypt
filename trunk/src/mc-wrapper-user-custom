@@ -1,0 +1,39 @@
+#!/bin/bash
+
+#  This is remake of standart '/usr/share/mc/bin/mc-wrapper.sh' or
+#  '/usr/lib/mc/mc-wrapper.sh'
+#
+#  May have in ~/.bashrc
+#  alias mc='/this/script/file/name'
+#
+##
+
+currentUserLoginName=`id | sed 's/[^(]*(//;s/).*//'`
+fileWithLastMCPanelPath="${TMPDIR-/tmp}/mc-${currentUserLoginName}/mc.pwd.$$"
+
+while [ ${#} -ne 0 ] ; do
+    case "${1}" in
+        -b|--bright)
+            declare -r fileWithSkin="/home/.opt/mc/skins/custom-modarcon16-bright.ini"
+        ;;
+        -d|--dark)
+            declare -r fileWithSkin="/home/.opt/mc/skins/custom-modarcon16-dark.ini"
+        ;;
+    esac
+    shift
+done
+
+/usr/bin/mc -a --skin="${fileWithSkin}" --oldmouse -P "${fileWithLastMCPanelPath}" "${@}" "$( pwd )" "$( pwd )"
+
+if [ -r "${fileWithLastMCPanelPath}" ] ; then
+    lastMCPanelPath="$( cat "${fileWithLastMCPanelPath}" )"
+    if [ -n "${lastMCPanelPath}" ] \
+        && [ -d "${lastMCPanelPath}" ]
+    then
+        cd "${lastMCPanelPath}"
+    fi
+    unset lastMCPanelPath
+fi
+
+rm -f "${fileWithLastMCPanelPath}"
+unset fileWithLastMCPanelPath

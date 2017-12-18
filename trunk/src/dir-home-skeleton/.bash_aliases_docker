@@ -1,0 +1,17 @@
+alias sd-="sudo -i -u docker docker "
+alias d-="sudo docker "
+alias d-b="sudo docker build . "
+alias d-b-tagged="sudo docker build --tag='$(get-tag-time-sec)' . "
+alias d-i="sudo docker images "
+alias d-i-id="sudo docker ps --format={{.ID}} "
+alias d-p="sudo docker ps "
+alias d-p-a-id="sudo docker ps --format={{.ID}} "
+alias d-get-conts-all="sudo docker ps --all --format=\"{{.ID}}\" "
+alias d-get-images-all="sudo docker images --all --format=\"{{.ID}}\" "
+alias d-r-rm="sudo docker run --rm --tty=true --interactive=true " # Start image and create running container.
+alias d-e="sudo docker exec --tty=true --interactive=true " # Execute in existing container (may wait for container start).
+alias d-s="sudo docker start " # Start container (already created).
+alias d-a="sudo docker attach " # Enter into container (already running).
+alias d-del-cont="sudo docker rm "
+alias d-del-image="sudo docker rmi "
+

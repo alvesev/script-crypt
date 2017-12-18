@@ -1,0 +1,5 @@
+alias g='git status && gitk &'
+alias gs='git status'
+alias gb='git branch'
+alias gc='git checkout'
+alias gi='git-icdiff'
