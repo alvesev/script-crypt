@@ -87,13 +87,20 @@ flh.setLevel(level)
 l.addHandler(flh)
 l.setLevel(level)
 
-l.info("Starting lid state watching. Using flag from '{}'. Log file is '{}'.".format(lid_state_yaml, file_log))
+l.info("Starting lid state watching."
+       + " Using flag from '{}'.".format(lid_state_yaml)
+       + " Log file is '{}'.".format(file_log))
+
 for exe_file in ("/usr/bin/sudo",
                  "/usr/bin/xscreensaver-command",
                  "/usr/bin/wmctrl"):
     if not which(exe_file):
         l.error("Executable '{}' not found in PATH or at all.".format(exe_file))
         exit(1)
+
+if not os.path.exists(lid_state_yaml):
+    l.error("Lid state info source"
+            + " '{}' not found.".format(lid_state_yaml))
 
 if os.fork():
     sys.exit()
@@ -104,16 +111,18 @@ while True:
     if is_after_sleep:
         is_after_sleep = False
         sleep(5)
-    with open(lid_state_yaml, "r") as fh:
-        lid_conf = yaml.load(fh)
-    if lid_conf["state"] == "open":
-        sleep(1)
-    elif lid_conf["state"] == "closed":
-        l.info("Lid has been {}.".format(lid_conf["state"]))
-        system("wmctrl -k on")  # Minimize all windows.
-        #system("xscreensaver-command -lock")
-        system("sudo /usr/sbin/pm-suspend")
-        is_after_sleep = True
+    if os.path.exists(lid_state_yaml):
+        with open(lid_state_yaml, "r") as fh:
+            lid_conf = yaml.load(fh)
+        if lid_conf["state"] == "open":
+            sleep(1)
+        elif lid_conf["state"] == "closed":
+            l.info("Lid has been {}.".format(lid_conf["state"]))
+            system("wmctrl -k on")  # Minimize all windows.
+            #system("xscreensaver-command -lock")
+            system("sudo /usr/sbin/pm-suspend")
+            is_after_sleep = True
+        else:
+            l.error("Unknown lid state '{}'.".format(lid_conf["state"]))
     else:
-        l.error("Unknown lid state '{}'.".format(lid_conf["state"]))
-
+        sleep(120)
