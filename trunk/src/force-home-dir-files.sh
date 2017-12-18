@@ -29,7 +29,7 @@ declare -r dir_home_skeleton="/home/.opt/conf/templates/user-person"
 
 read -p "WILL OVEWRITE SETTINGS IN HOME DIRECTORY !!!"
 
-if [ "$EUID" == "0" ] ; then
+if [ "$EUID" == "0" ] && [ "${1}" != "--force-if-root" ] ; then
     set +x
     echo "Detected launch on behalf of root. Do nothing."
     exit 1
