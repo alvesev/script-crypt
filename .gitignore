@@ -9,4 +9,9 @@
 
 *.pyc
 
-*.deb
+/*/deb-build/*.deb
+/*/deb-build/*.deb.md5
+/*/deb-build/*.changes
+/*/deb-build/debian/compat
+/*/deb-build/debian/files
+/*/deb-build/debian/*.debhelper.log
