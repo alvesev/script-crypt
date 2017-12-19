@@ -66,7 +66,7 @@
 # DEB_DH_MAKESHLIBS_ARGS_<package>
 #   Arguments passed directly to dh_makeshlibs, for a particular package <package>
 # DEB_DH_MAKESHLIBS_ARGS
-#   Completely override argument passing to dh_makeshlibs. 
+#   Completely override argument passing to dh_makeshlibs.
 # DEB_DH_SHLIBDEPS_ARGS_ALL
 #   Arguments passed directly to dh_shlibdeps, for all packages
 # DEB_DH_SHLIBDEPS_ARGS_<package>
@@ -209,8 +209,8 @@ $(patsubst %,binary/%,$(DEB_ALL_PACKAGES)) :: binary/% : binary-makedeb/%
 $(patsubst %,binary-install/%,$(DEB_ALL_PACKAGES)) :: binary-install/%:
 	dh_installdocs -p$(cdbs_curpkg) $(call cdbs_expand_curvar,DEB_INSTALL_DOCS)
 	dh_installexamples -p$(cdbs_curpkg) $(call cdbs_expand_curvar,DEB_INSTALL_EXAMPLES)
-	dh_installman -p$(cdbs_curpkg) $(call cdbs_expand_curvar,DEB_INSTALL_MANPAGES) 
-	dh_installinfo -p$(cdbs_curpkg) $(call cdbs_expand_curvar,DEB_INSTALL_INFO) 
+	dh_installman -p$(cdbs_curpkg) $(call cdbs_expand_curvar,DEB_INSTALL_MANPAGES)
+	dh_installinfo -p$(cdbs_curpkg) $(call cdbs_expand_curvar,DEB_INSTALL_INFO)
 	dh_installmenu -p$(cdbs_curpkg) $(call cdbs_expand_curvar,DEB_DH_INSTALL_MENU_ARGS)
 	dh_installcron -p$(cdbs_curpkg) $(call cdbs_expand_curvar,DEB_DH_INSTALL_CRON_ARGS)
 	dh_installinit -p$(cdbs_curpkg) $(if $(call cdbs_expand_curvar,DEB_UPDATE_RCD_PARAMS),--update-rcd-params="$(call cdbs_strip_quotes,$(call cdbs_expand_curvar,DEB_UPDATE_RCD_PARAMS))") $(call cdbs_expand_curvar,DEB_DH_INSTALLINIT_ARGS)
@@ -244,7 +244,7 @@ $(patsubst %,binary-post-install/%,$(DEB_ALL_PACKAGES)) :: binary-post-install/%
 # to strip files.
 $(patsubst %,binary-strip/%,$(DEB_ARCH_PACKAGES)) :: binary-strip/%: common-binary-post-install-arch binary-strip-IMPL/%
 $(patsubst %,binary-strip/%,$(DEB_INDEP_PACKAGES)) :: binary-strip/%: common-binary-post-install-indep binary-strip-IMPL/%
-$(patsubst %,binary-strip-IMPL/%,$(DEB_ALL_PACKAGES)) :: binary-strip-IMPL/%: 
+$(patsubst %,binary-strip-IMPL/%,$(DEB_ALL_PACKAGES)) :: binary-strip-IMPL/%:
 	$(if $(is_debug_package),,dh_strip -p$(cdbs_curpkg) $(call cdbs_add_dashx,$(call cdbs_expand_curvar,DEB_STRIP_EXCLUDE)) $(call cdbs_expand_curvar,DEB_DH_STRIP_ARGS))
 
 # This rule is called right before generating debs {post,pre}{inst,rm} and controls, deps, are calculated
@@ -257,7 +257,12 @@ common-binary-fixup-indep:: $(patsubst %,binary-fixup/%,$(DEB_INDEP_PACKAGES))
 # and sets up shared library information.
 $(patsubst %,binary-fixup/%,$(DEB_ALL_PACKAGES)) :: binary-fixup/%: binary-strip/%
 	dh_compress -p$(cdbs_curpkg) $(call cdbs_add_dashx,$(call cdbs_expand_curvar,DEB_COMPRESS_EXCLUDE)) $(call cdbs_expand_curvar,DEB_DH_COMPRESS_ARGS)
-	dh_fixperms -p$(cdbs_curpkg) $(call cdbs_add_dashx,$(call cdbs_expand_curvar,DEB_FIXPERMS_EXCLUDE)) $(call cdbs_expand_curvar,DEB_DH_FIXPERMS_ARGS)
+
+
+	test -d "$(DESTDIR)/$(DIR_SECURE_ROOT_HOME_TEMPLATE)"
+	dh_fixperms -p$(cdbs_curpkg) $(call cdbs_add_dashx,$(call cdbs_expand_curvar,DEB_FIXPERMS_EXCLUDE)) $(call cdbs_expand_curvar,DEB_DH_FIXPERMS_ARGS) --exclude $(DIR_SECURE_ROOT_HOME_TEMPLATE)  # Do not break permissions to be set by installer.
+
+
 # TODO: Use DEB_DH_MAKESHLIBS_ARGS as package-default (not global override)
 	$(if $(is_debug_package),,dh_makeshlibs -p$(cdbs_curpkg) $(DEB_DH_MAKESHLIBS_ARGS))
 
@@ -267,7 +272,7 @@ common-binary-predeb-arch:: $(patsubst %,binary-predeb/%,$(DEB_ARCH_PACKAGES))
 common-binary-predeb-indep:: $(patsubst %,binary-predeb/%,$(DEB_INDEP_PACKAGES))
 
 # This rule is called right before a packages' .deb file is made.
-# It is a good place to make programs setuid, change the scripts in DEBIAN/, etc. 
+# It is a good place to make programs setuid, change the scripts in DEBIAN/, etc.
 $(patsubst %,binary-predeb/%,$(DEB_ARCH_PACKAGES)) :: binary-predeb/%: common-binary-fixup-arch binary-predeb-IMPL/%
 $(patsubst %,binary-predeb/%,$(DEB_INDEP_PACKAGES)) :: binary-predeb/%: common-binary-fixup-indep binary-predeb-IMPL/%
 $(patsubst %,binary-predeb-IMPL/%,$(DEB_ALL_PACKAGES)) :: binary-predeb-IMPL/%:
@@ -281,7 +286,7 @@ $(patsubst %,binary-predeb-IMPL/%,$(DEB_ALL_PACKAGES)) :: binary-predeb-IMPL/%:
 # useful to hook things onto this rule.
 $(patsubst %,binary-makedeb/%,$(DEB_ARCH_PACKAGES)) :: binary-makedeb/% : common-binary-predeb-arch binary-makedeb-IMPL/%
 $(patsubst %,binary-makedeb/%,$(DEB_INDEP_PACKAGES)) :: binary-makedeb/% : common-binary-predeb-indep binary-makedeb-IMPL/%
-$(patsubst %,binary-makedeb-IMPL/%,$(DEB_ALL_PACKAGES)) :: binary-makedeb-IMPL/% : 
+$(patsubst %,binary-makedeb-IMPL/%,$(DEB_ALL_PACKAGES)) :: binary-makedeb-IMPL/% :
 # TODO: Use DEB_DH_GENCONTROL_ARGS as package-default (not global override)
 	dh_gencontrol -p$(cdbs_curpkg) $(DEB_DH_GENCONTROL_ARGS)
 	# only call dh_scour for packages in main

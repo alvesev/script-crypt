@@ -1,3 +1,5 @@
+#!/usr/bin/make -f
+
 DIR_ORIGIN = ../src
 DIR_BASE_INSTALL = /opt/script-crypt
 
