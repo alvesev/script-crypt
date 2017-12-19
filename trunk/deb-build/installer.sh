@@ -19,7 +19,7 @@
 #
 ##
 
-PS4="CMD:\${0}:pid=\${$}: "
+PS4="CMD:\${0}:pid=\${$}:\${LINENO}: "
 set -x
 set -e
 
@@ -31,7 +31,8 @@ declare -r DESTDIR="${3}"
 
 declare -r CHROOT="${DESTDIR}"
 
-declare -r dir_home_skeleton="/home/.opt/conf/templates/user-person"
+declare -r home_skeleton="/home/.opt/conf/templates/user-person"
+declare -r home_skeleton_root="/home/.opt/conf/templates/user-root"
 
 
 test -d "${CHROOT}/usr/bin/"       || install --directory --owner=root --group=root --mode=755 --verbose   "${CHROOT}/usr/bin/"
@@ -40,7 +41,8 @@ test -d "${CHROOT}/etc/init.d/"    || install --directory --owner=root --group=r
 test -d "${CHROOT}/etc/rc3.d/"     || install --directory --owner=root --group=root --mode=755 --verbose   "${CHROOT}/etc/rc3.d/"
 test -d "${CHROOT}/home/.opt/"     || install --directory --owner=root --group=root --mode=755 --verbose   "${CHROOT}/home/.opt/"
 test -d "${CHROOT}/home/.opt/mc"   || install --directory --owner=root --group=root --mode=755 --verbose   "${CHROOT}/home/.opt/mc"
-test -d "${CHROOT}/${dir_home_skeleton}"     || install --directory --owner=root --group=root --mode=755 --verbose "${CHROOT}/${dir_home_skeleton}"
+test -d "${CHROOT}/${home_skeleton}"          || install --directory --owner=root --group=root --mode=755 --verbose "${CHROOT}/${home_skeleton}"
+test -d "${CHROOT}/${home_skeleton_root}"     || install --directory --owner=root --group=root --mode=755 --verbose "${CHROOT}/${home_skeleton_root}"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/ConfFileSetGet.py"                "${CHROOT}/usr/bin/conf-file-get-set"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/TooLongNames.py"                  "${CHROOT}/usr/bin/too-long-names"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/rename-APK-by-versions.sh"        "${CHROOT}/usr/bin/rename-apk-by-versions"
@@ -56,11 +58,11 @@ install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/mc-wrapper
 
 ln -s "/etc/init.d/sys-suspend-on-lid" "${CHROOT}/etc/rc3.d/S07sys-suspend-on-lid"
 
-while read path ; do
-    cp --recursive "${path}" "${CHROOT}/${dir_home_skeleton}"
-done <<< "$( find "${DIR_ORIGIN}/dir-home-skeleton" -mindepth 1 -maxdepth 1 )"
+chmod -R og-rwx "${DIR_ORIGIN}/dir-home-skeleton-root"
+for item in "${DIR_ORIGIN}/dir-home-skeleton" "${DIR_ORIGIN}/mc-additionals" ; do
+    chmod -R og-w "${item}"
+done
 
-while read path ; do
-    cp --recursive "${path}" "${CHROOT}/home/.opt/mc"
-done <<< "$( find "${DIR_ORIGIN}/mc-additionals" -mindepth 1 -maxdepth 1 )"
-
+cp --recursive --preserve=mode "${DIR_ORIGIN}/dir-home-skeleton-root"/.  "${CHROOT}/${home_skeleton_root}/"
+cp --recursive --preserve=mode "${DIR_ORIGIN}/dir-home-skeleton"/.       "${CHROOT}/${home_skeleton}/"
+cp --recursive --preserve=mode "${DIR_ORIGIN}/mc-additionals"/.          "${CHROOT}/home/.opt/mc"

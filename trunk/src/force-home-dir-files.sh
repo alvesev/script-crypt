@@ -21,11 +21,12 @@
 ##
 
 
-PS4="+:\${0}:${LINENO}: "
+PS4="+:\${0}:\${LINENO}: "
 set -x
 set -e
 
-declare -r dir_home_skeleton="/home/.opt/conf/templates/user-person"
+declare -r home_skeleton="/home/.opt/conf/templates/user-person"
+declare -r home_skeleton_root="/home/.opt/conf/templates/user-root"
 
 read -p "WILL OVEWRITE SETTINGS IN HOME DIRECTORY !!!"
 
@@ -35,7 +36,12 @@ if [ "$EUID" == "0" ] && [ "${1}" != "--force-if-root" ] ; then
     exit 1
 fi
 
-while read path ; do
-    cp --recursive "${path}" "${HOME}"
-done <<< "$( find "${dir_home_skeleton}" -mindepth 1 -maxdepth 1 )"
-
+if [ "$EUID" == "0" ] ; then
+    while read path ; do
+        cp --recursive "${path}" ~root
+    done <<< "$( find "${home_skeleton_root}" -mindepth 1 -maxdepth 1 )"
+else
+    while read path ; do
+        cp --recursive "${path}" "${HOME}"
+    done <<< "$( find "${home_skeleton}" -mindepth 1 -maxdepth 1 )"
+fi
