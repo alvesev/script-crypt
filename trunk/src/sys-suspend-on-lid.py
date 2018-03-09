@@ -99,8 +99,8 @@ for exe_file in ("/usr/bin/sudo",
         exit(1)
 
 if not os.path.exists(lid_state_yaml):
-    l.error("Lid state info source"
-            + " '{}' not found.".format(lid_state_yaml))
+    l.error("Lid state information source"
+            + " '{}' not found at start.".format(lid_state_yaml))
 
 if os.fork():
     sys.exit()
