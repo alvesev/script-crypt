@@ -84,29 +84,38 @@ def getCLIArgs():
 
 def unHoldPacks(debPacksNames):
     if debPacksNames:
-        os.system("sudo apt-mark unhold {}".format(
-                                            " ".join(debPacksNames)))
+        exec_shell_cmd("sudo apt-mark unhold" \
+                       + " {}".format(" ".join(debPacksNames)))
 
 
 def putOnHold(debPacksNames):
     if debPacksNames:
-        os.system("sudo apt-mark hold {}".format(
-                                            " ".join(debPacksNames)))
+        exec_shell_cmd("sudo apt-mark hold" \
+                       + " {}".format(" ".join(debPacksNames)))
 
 
 def downloadAll(explicitInstallPacks=()):
-    os.system("sudo apt-get update")
-    os.system("sudo apt-get --yes --download-only upgrade")
+    exec_shell_cmd("sudo apt-get update")
+    exec_shell_cmd("sudo apt-get --yes --download-only upgrade")
     if explicitInstallPacks:
-        os.system("sudo apt-get --yes --download-only install {}".format(
-                                        " ".join(explicitInstallPacks)))
+        exec_shell_cmd("sudo apt-get" \
+                       + " --yes --download-only install"
+                       + " {}".format(" ".join(explicitInstallPacks)))
 
 
 def upgradeFromDownloaded(explicitInstallPacks=()):
-    os.system("sudo apt-get upgrade")
+    exec_shell_cmd("sudo apt-get upgrade")
     if explicitInstallPacks:
-        os.system("sudo apt-get install {}".format(
-                                        " ".join(explicitInstallPacks)))
+        exec_shell_cmd("sudo apt-get install" \
+                       + " {}".format(" ".join(explicitInstallPacks)))
+
+
+def exec_shell_cmd(shell_cmd):
+    assert isinstance(shell_cmd, str)
+    shell_true = 0
+    err_msg = "SHELL COMMAND FAILED OR HAS BEEN INTERRUPTED."
+    l.info("Launching shell command: {}".format(shell_cmd))
+    assert shell_true == os.system(shell_cmd), err_msg
 
 
 # # #
