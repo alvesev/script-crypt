@@ -1,3 +1,9 @@
+script-crypt (7) xenial; urgency=low
+
+  * Several fixes.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Fri, 09 Mar 2018 21:09:00 +0400
+
 script-crypt (6) xenial; urgency=low
 
   * User settings set up.
