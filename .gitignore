@@ -15,3 +15,6 @@
 /*/deb-build/debian/compat
 /*/deb-build/debian/files
 /*/deb-build/debian/*.debhelper.log
+
+/*.deb
+/*.deb.md5
