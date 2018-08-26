@@ -108,7 +108,7 @@ def _worker_py2(worker, worker_input_args, result_queue):
     while True:
         result = {"input_arg":      None,
                   "result":         None,
-                  "is_succeed":   False}
+                  "is_succeed":     False}
         try:
             arg =                   worker_input_args.get_nowait()
             result["input_arg"] =   arg
