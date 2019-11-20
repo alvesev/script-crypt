@@ -123,6 +123,40 @@ def _worker_py2(worker, worker_input_args, result_queue):
         result_queue.put(result)
 
 
+"""
+$ remove-photos-x-attr -d ~/Data/Photos/
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/multiprocessing/queues.py", line 268, in _feed
+    send(obj)
+IOError: [Errno 32] Broken pipe
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/multiprocessing/queues.py", line 268, in _feed
+    send(obj)
+IOError: [Errno 32] Broken pipe
+
+
+def main():
+  m = multiprocessing.Manager()
+  sharedQueue = m.Queue()
+  sharedQueue.put(2)
+  sharedQueue.put(3)
+  sharedQueue.put(4)
+
+  process1 = multiprocessing.Process(target=myTask, args=(sharedQueue,))
+  process1.start()
+
+  process2 = multiprocessing.Process(target=myTask, args=(sharedQueue,))
+  process2.start()
+
+  process3 = multiprocessing.Process(target=myTask, args=(sharedQueue,))
+  process3.start()
+
+  process2.join()
+  process1.join()
+  process3.join()
+
+"""
+
 def prorab_py2(worker, num_thread, worker_args):
 
     worker_input_args = Queue()

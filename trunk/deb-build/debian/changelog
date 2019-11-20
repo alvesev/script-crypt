@@ -1,3 +1,9 @@
+script-crypt (8) xenial; urgency=low
+
+  * Remover of 'executable' bit for a files in a directory.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Sun, 26 Aug 2018 14:03:00 +0300
+
 script-crypt (7) xenial; urgency=low
 
   * Several fixes.
