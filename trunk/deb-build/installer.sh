@@ -56,6 +56,7 @@ install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/settings/s
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/mc-wrapper-root-custom"           "${CHROOT}/usr/bin/mc-wrapper-root-custom"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/mc-wrapper-user-custom"           "${CHROOT}/usr/bin/mc-wrapper-user-custom"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/remove-photos-x-attr"             "${CHROOT}/usr/bin/remove-photos-x-attr"
+install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/install_updates"                  "${CHROOT}/usr/bin/install_updates"
 
 ln -s "/etc/init.d/sys-suspend-on-lid" "${CHROOT}/etc/rc3.d/S07sys-suspend-on-lid"
 

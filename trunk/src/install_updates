@@ -1,0 +1,42 @@
+#!/bin/bash
+#
+#  Copyright 2007-2019 Alex Vesev
+#
+#  This file is part of Script Crypt.
+#
+#  Script Crypt is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Script Crypt is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Script Crypt. If not, see <http://www.gnu.org/licenses/>.
+#
+##
+
+PS4="+:\$( basename \"\$( readlink -f "\${0}" )\" ):\${LINENO}: "
+set -xeu
+
+for cliArg in "${@}" ; do
+    case "${cliArg}" in
+    -s|--security)
+        apt-get upgrade -o Dir::Etc::SourceList="/etc/apt/sources.list.d/sources-security.list"
+        ;;
+    -c|--common)
+        apt-get upgrade -o Dir::Etc::SourceList="/etc/apt/sources.list.d/sources-common.list"
+        ;;
+    *)
+        echo "ERROR:$( basename "${0}" ):${LINENO}: Got unknown argument '${cliArg}'." >&2
+        exit 1
+    esac
+done
+
+set +x
+echo -ne "\n\n"
+echo "INFO:$( basename "$( readlink -f "${0}" )" ):${LINENO}: Job done."
+echo -ne "\n"
