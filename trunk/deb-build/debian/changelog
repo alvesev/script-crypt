@@ -3,6 +3,8 @@ script-crypt (8) xenial; urgency=low
   * Remover of 'executable' bit for a files in a directory.
   * Updates installer via Apt, using selected repos only.
   * Timestamp printer.
+  * MC clarification and timestamps in archive names.
+  * Git log pretty printers.
 
  -- Alex Vesev <alex.vesev@gmail.com>  Sun, 26 Aug 2018 14:03:00 +0300
 
