@@ -3,6 +3,7 @@
 /*/misc
 /tmp
 /*/tmp
+*.log
 
 /.project
 /.pydevproject
@@ -15,6 +16,8 @@
 /*/deb-build/debian/compat
 /*/deb-build/debian/files
 /*/deb-build/debian/*.debhelper.log
+/*/deb-build/debian/.debhelper/generated/
+*.buildinfo
 
 /*.deb
 /*.deb.md5
