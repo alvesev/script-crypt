@@ -20,10 +20,19 @@
 ##
 
 PS4="+:\$( basename \"\$( readlink -f "\${0}" )\" ):\${LINENO}: "
-set -xeu
+set -xeu -o pipefail
 
-for cliArg in "${@}" ; do
-    case "${cliArg}" in
+
+if [ "${#}" -lt 1 ] || [ "${*}" != "${*/--help/}" ] ; then
+    cat "${0}" | egrep "([[:space:]]|\|)[\-]{1,2}[a-zA-Z0-9_\-]{1,})"
+    exit 1
+fi
+
+
+while [ "${#}" -gt 0 ] ; do
+    arg_name="${1%%=*}"
+    arg_value="${1#*=}"
+    case "${arg_name}" in
     -s|--security)
         apt-get upgrade -o Dir::Etc::SourceList="/etc/apt/sources.list.d/sources-security.list"
         ;;
@@ -31,10 +40,12 @@ for cliArg in "${@}" ; do
         apt-get upgrade -o Dir::Etc::SourceList="/etc/apt/sources.list.d/sources-common.list"
         ;;
     *)
-        echo "ERROR:$( basename "${0}" ):${LINENO}: Got unknown argument '${cliArg}'." >&2
+        echo "ERROR:$( basename "${0}" ):${LINENO}: Got unknown argument '${arg_name}'." >&2
         exit 1
     esac
+    shift
 done
+
 
 set +x
 echo -ne "\n\n"
