@@ -1,3 +1,15 @@
+script-crypt (10) ulyana; urgency=low
+
+  * Log out script and package files lister added.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Sun, 18 Oct 2020 10:03:00 +0300
+
+script-crypt (9) ulyana; urgency=low
+
+  * Migration to Python3.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Sat, 05 Sep 2020 20:00:00 +0300
+
 script-crypt (8) xenial; urgency=low
 
   * Remover of 'executable' bit for a files in a directory.
