@@ -1,0 +1,43 @@
+#!/bin/bash
+
+#
+#  Copyright 2007-2020 Alex Vesev
+#
+#  This file is part of Script Crypt.
+#
+#  Script Crypt is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Script Crypt is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Script Crypt. If not, see <http://www.gnu.org/licenses/>.
+#
+##
+
+PS4="+:\${0}:\${LINENO}: "
+set -xeu
+
+declare -r XDG_SESSION_DESKTOP="${XDG_SESSION_DESKTOP:-}"
+
+case "${XDG_SESSION_DESKTOP}" in
+    xfce)
+        xfce4-session-logout
+        ;;
+    lxqt)
+        lxqt-leave
+        ;;
+    *)
+        echo "WARNING:${0}:${LINENO}: Unknown desktop environment '${XDG_SESSION_DESKTOP}'." >&2
+        exit 1
+        ;;
+esac
+
+set +x
+echo "INFO:$( basename "${0}" ):${LINENO}: Job done." >&2
+echo -ne "\n"
