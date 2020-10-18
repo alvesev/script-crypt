@@ -58,6 +58,8 @@ install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/mc-wrapper
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/remove-photos-x-attr"             "${CHROOT}/usr/bin/remove-photos-x-attr"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/apt-install-updates"              "${CHROOT}/usr/bin/apt-install-updates"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/get-timestamp"                    "${CHROOT}/usr/bin/get-timestamp"
+install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/logger-out"                       "${CHROOT}/usr/bin/logger-out"
+install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/script-crypt-files"               "${CHROOT}/usr/bin/script-crypt-files"
 
 ln -s "/etc/init.d/sys-suspend-on-lid" "${CHROOT}/etc/rc3.d/S07sys-suspend-on-lid"
 
