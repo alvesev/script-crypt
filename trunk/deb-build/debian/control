@@ -8,7 +8,7 @@ Homepage: https://github.com/alvesev
 
 Package: script-crypt
 Architecture: all
-Depends: python3, python2.7, bash, sed, coreutils, libc-bin, grep, catdoc, findutils, aapt, libpython2.7-minimal, dialog, speedometer, wmctrl, pm-utils,  xscreensaver, sudo, python3-gnupg, xclip, python-sh
+Depends: python3, python2.7, bash, sed, coreutils, libc-bin, grep, catdoc, findutils, aapt, libpython2.7-minimal, dialog, speedometer, wmctrl, pm-utils,  xscreensaver, sudo, python3-gnupg, xclip, python3-sh
 Description: Script Crypt - some helpers and utilities to assist in everbeings.
  Script Crypt - some helpers and utilities to assist in everbeings.
 
