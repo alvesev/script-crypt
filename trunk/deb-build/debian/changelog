@@ -1,3 +1,9 @@
+script-crypt (11) ulyana; urgency=low
+
+  * FBPanel launcher.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Sun, 01 Nov 2020 16:16:00 +0300
+
 script-crypt (10) ulyana; urgency=low
 
   * Log out script and package files lister added.

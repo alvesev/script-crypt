@@ -1,0 +1,21 @@
+#!/bin/bash
+
+PS4="+:\${0}:\${LINENO}: "
+set -xu
+
+if [ "${XRDP_SESSION}" == "1" ] ; then
+    session_type=REMOTE
+    panel_sides_pool=("TOP" "RIGHT")
+else
+    session_type=ALL-WM
+    panel_sides_pool=("TOP" "LEFT")
+fi
+
+
+for side in "${panel_sides_pool[@]}" ; do
+    nohup fbpanel \
+        --profile \
+            "${USER}.$(hostname)_${session_type}_MAIN_${side}_fbPanel-6-1.conf" \
+                2>/dev/null 1>/dev/null &
+
+done
