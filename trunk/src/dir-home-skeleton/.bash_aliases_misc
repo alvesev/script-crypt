@@ -4,12 +4,18 @@
 alias a='cat ~/.bash_aliases | egrep -v "^#"'
 alias sa='source ~/.bash_aliases'
 
-alias ls='ls --time-style="+%Y-%m-%d %H:%M"'
+alias ls='ls --color=auto --time-style="+%Y-%m-%d %H:%M"'
+alias ll='ls -alF --time-style="+%Y-%m-%d %H:%M"'
+alias la='ls -A --time-style="+%Y-%m-%d %H:%M"'
+alias l='ls -CF --time-style="+%Y-%m-%d %H:%M"'
+
 alias h='history'
+alias g='egrep --color=auto'
 
 alias mc='/usr/bin/mc-wrapper-user-custom --bright'
 alias mcb='/usr/bin/mc-wrapper-user-custom --bright'
 alias mcd='/usr/bin/mc-wrapper-user-custom --dark'
+alias mc-direct='/usr/bin/mc'
 
 alias set-clip="xclip -selection c"
 alias get-clip="xclip -selection c -o"
@@ -17,3 +23,6 @@ alias get-clip="xclip -selection c -o"
 alias p='pwd'
 
 alias p8="ping -c 2 8.8.8.8"
+
+alias pointer-speed-max="xinput --set-prop 'TPPS/2 IBM TrackPoint' 'libinput Accel Speed' 1"
+alias pointer-speed-half="xinput --set-prop 'TPPS/2 IBM TrackPoint' 'libinput Accel Speed' 0.5"
