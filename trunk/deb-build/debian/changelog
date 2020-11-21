@@ -1,3 +1,9 @@
+script-crypt (12) ulyana; urgency=low
+
+  * User settings upgrade.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Sat, 21 Nov 2020 11:56:00 +0300
+
 script-crypt (11) ulyana; urgency=low
 
   * FBPanel launcher.
