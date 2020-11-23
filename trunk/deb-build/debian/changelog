@@ -1,8 +1,9 @@
 script-crypt (12) ulyana; urgency=low
 
   * User settings upgrade.
+  * Suspend on lid tool changed.
 
- -- Alex Vesev <alex.vesev@gmail.com>  Sat, 21 Nov 2020 11:56:00 +0300
+ -- Alex Vesev <alex.vesev@gmail.com>  Mon, 23 Nov 2020 06:22:00 +0300
 
 script-crypt (11) ulyana; urgency=low
 

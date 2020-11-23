@@ -120,7 +120,8 @@ while True:
             l.info("Lid has been {}.".format(lid_conf["state"]))
             system("wmctrl -k on")  # Minimize all windows.
             #system("xscreensaver-command -lock")
-            system("sudo /usr/sbin/pm-suspend")
+            #system("sudo /usr/sbin/pm-suspend")
+            system("sudo /bin/systemctl suspend --ignore-inhibitors")
             is_after_sleep = True
         else:
             l.error("Unknown lid state '{}'.".format(lid_conf["state"]))
