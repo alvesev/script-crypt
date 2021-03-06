@@ -4,5 +4,33 @@ alias gb='git branch'
 alias gba='git branch -a'
 alias gc='git checkout'
 alias gi='git-icdiff'
-alias gl="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all"
+
+
+alias gl="git log --graph --abbrev-commit --decorate --date='format:%Y-%m-%d %H:%M %z' --format=format:'%C(red)%h%C(reset) - %C(yellow)%d %C(white)%s%Cgreen(%ad) %C(bold blue)%an <%ae>%C(reset)' --all"
 alias gl2="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all"
+alias gl3="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all"
+
+
+# --anchor-commit <commit>                optional commit to open the log for
+# --blame [file]                          open a blame for the given file (file
+#                                           may contain trailing :<linenumber>)
+# --cwd <File>                            relative paths are given relative to
+#                                           this absolute path
+# --investigate [file]                    open a DeepGit view for the given file
+#                                           (file may contain trailing :
+#                                           <linenumber>)
+# --list-index [repository-root]          list the files of the Git index of the
+#                                           given directory
+# --log [directory]                       open the given repository in the log
+#                                           view
+# --open [directory]                      open the given repository in the GUI
+# --status [repository-root]              shows the Git status of the given
+#                                           directory
+# --write-default-theme-file              write the default theme file
+alias sgit="/usr/share/smartgit/bin/smartgit.sh"
+alias sgit-anchor-commit="/usr/share/smartgit/bin/smartgit.sh --anchor-commit"
+alias sgit-blame="/usr/share/smartgit/bin/smartgit.sh --blame"
+alias sgit-investigate="/usr/share/smartgit/bin/smartgit.sh --investigate"
+alias sgit-log="/usr/share/smartgit/bin/smartgit.sh --log"
+alias sgit-open="/usr/share/smartgit/bin/smartgit.sh --open"
+alias sgit-status="/usr/share/smartgit/bin/smartgit.sh --status"
