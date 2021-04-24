@@ -1,0 +1,35 @@
+#!/bin/bash
+
+#
+#  Copyright 2007-2021 Alex Vesev
+#
+#  This file is part of Script Crypt.
+#
+#  Script Crypt is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Script Crypt is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Script Crypt. If not, see <http://www.gnu.org/licenses/>.
+#
+##
+
+set -xeu
+
+cd_name="${1:-$cd_name}" ;\
+dn="${HOME}/tmp/cdr/${cd_name}" ;\
+date '+%Y-%m-%d-%H%M' ;\
+time ddrescue -b 2048 -n -v /dev/sr0 "$dn.iso" "$dn.log" ;\
+time ddrescue -b 2048 -d -r 3 -v /dev/sr0 "$dn.iso" "$dn.log" ;\
+time ddrescue -b 2048 -d -R -r 3 -v /dev/sr0 "$dn.iso" "$dn.log" ;\
+date '+%Y-%m-%d-%H%M'
+
+set +x
+echo "INFO:${0}:${LINENO}: Job done for '${cd_name}'." >&2
+echo ""
