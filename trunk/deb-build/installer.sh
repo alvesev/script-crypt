@@ -61,6 +61,7 @@ install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/get-timest
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/logger-out"                       "${CHROOT}/usr/bin/logger-out"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/script-crypt-files"               "${CHROOT}/usr/bin/script-crypt-files"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/fbpanel-launch"                   "${CHROOT}/usr/bin/fbpanel-launch"
+install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/generate-audacity-labels"         "${CHROOT}/usr/bin/generate-audacity-labels"
 
 ln -s "/etc/init.d/sys-suspend-on-lid" "${CHROOT}/etc/rc3.d/S07sys-suspend-on-lid"
 
