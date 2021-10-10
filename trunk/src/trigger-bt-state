@@ -1,0 +1,81 @@
+#!/bin/bash
+
+#
+#  Copyright 2021 Alex Vesev
+#
+#  This file is part of Script Crypt.
+#
+#  Script Crypt is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Script Crypt is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Script Crypt. If not, see <http://www.gnu.org/licenses/>.
+#
+##
+
+#
+#   Fbpanel button configuration fragment:
+#
+#        button,item {
+#            name = Bluetooth trigger
+#            #icon =
+#            image = /usr/share/icons/bluetooth.svg
+#            tooltip = Trigger Bluetooth
+#            action = trigger-bt-state
+#        }
+#
+##
+
+
+PS4="+:\${0}:\${LINENO}: "
+set -xeu -o pipefail
+
+declare -r bt_state_soft_trigger="$( \
+            rfkill --output-all --json \
+                | jq -r '.""[] | select( (.type=="bluetooth") and (.device=="tpacpi_bluetooth_sw") ) | .soft' )"
+
+
+###
+##
+#
+
+
+function bt_up {
+    rfkill unblock bluetooth
+}
+
+function bt_down {
+    rfkill block bluetooth
+}
+
+
+###
+##
+#
+
+
+case "${bt_state_soft_trigger}" in
+    blocked)
+        bt_up
+        ;;
+    unblocked)
+        bt_down
+        ;;
+    *)
+        echo "WARNING:${0}:${LINENO}: Unknown value '${bt_state_soft_trigger}' of BT state flag." >&2
+        bt_down
+        ;;
+esac
+
+
+
+set +x
+echo "INFO:${0}:${LINENO}: Job done." >&2
+echo ""
