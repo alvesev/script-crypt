@@ -63,6 +63,7 @@ install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/script-cry
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/fbpanel-launch"                   "${CHROOT}/usr/bin/fbpanel-launch"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/generate-audacity-labels"         "${CHROOT}/usr/bin/generate-audacity-labels"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/trigger-bt-state"                 "${CHROOT}/usr/bin/trigger-bt-state"
+install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/bt/bt-connector"                  "${CHROOT}/usr/bin/bt-connector"
 
 ln -s "/etc/init.d/sys-suspend-on-lid" "${CHROOT}/etc/rc3.d/S07sys-suspend-on-lid"
 
