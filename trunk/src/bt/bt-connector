@@ -1,0 +1,159 @@
+#!/bin/bash
+
+#
+#  Copyright 2007-2022 Alex Vesev
+#
+#  This file is part of Script Crypt.
+#
+#  Script Crypt is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Script Crypt is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Script Crypt. If not, see <http://www.gnu.org/licenses/>.
+#
+##
+
+
+PS4="+:\$( basename \"\$( readlink -f "\${0}" )\" ):\${LINENO}: "
+set -eu -o pipefail
+if [ "${#}" -lt 1 ] || [ "${*}" != "${*/--help/}" ] ; then
+    cat "${0}" | egrep "([[:space:]]|\|)[\-]{1,2}[a-zA-Z0-9_\-]{1,})"
+    exit 1
+fi
+if [ "${#}" -lt 1 ] || [ "${*}" != "${*/--verbose/}" ] ; then
+    set -x
+fi
+
+if [ "${#}" -lt 1 ] || [ "${*}" != "${*/--install/}" ] ; then
+
+    if [ "$USER" == "root" ] ; then
+        declare -r owner="${SUDO_USER}"
+    else
+        declare -r owner="${USER}"
+    fi
+
+    declare -r dir_this="$( cd "$( dirname "${0}" )" ; pwd )"
+    declare -r file_this="${0}"
+    declare -r file_cnf="$( getent passwd "$owner" | cut -d: -f6 )/.config/bt-connector/conf.json"
+
+    install --mode 755 --owner=root --group=root "${file_this}" /usr/bin
+    if [ ! -d "/etc/bt-connector" ] ; then
+        install --directory --mode 755 --owner=root --group=root /etc/bt-connector/
+        cat << EOF > /etc/bt-connector/conf.json
+{
+    "device": {
+        "human-readable-name-A": "00:11:AA:BB:22:44",
+        "human-readable-name-B": "CC:DD:55:66:EE:FF"
+    }
+}
+EOF
+        chmod 644       /etc/bt-connector/conf.json
+        chown root.root /etc/bt-connector/conf.json
+    fi
+    if [ ! -f "${file_cnf}" ] ; then
+        install --mode 755 --owner="${owner}" --group="${owner}" --directory "$( dirname "${file_cnf}" )"
+        install --mode 600 --owner="${owner}" --group="${owner}" "${file_this}.json" "${file_cnf}"
+    fi
+    exit
+fi
+
+if [ "${#}" -lt 1 ] || [ "${*}" != "${*/--conf-file/}" ] ; then
+    echo "ERROR:${0}:${LINENO}: Unimplemented functionality call." >&2
+    exit 1
+else
+    if [ -f ~/.config/bt-connector/conf.json ] ; then
+        declare -r file_cnf=~/.config/bt-connector/conf.json
+    else
+        declare -r file_cnf=/etc/bt-connector/conf.json
+    fi
+fi
+
+cat "${file_cnf}" | jq 1>/dev/null  # Test configuration file syntax.
+
+declare -A device_mac_pool=()
+while read dev_name ; do
+    device_mac_pool[$dev_name]="$( cat "${file_cnf}" | jq -r ".device.\"$dev_name\"" )"
+done <<< "$( cat "${file_cnf}" | jq -r ".device | keys[]" )"  # cat "${file_cnf}" | jq -r ".device | to_entries[] | .key+\"=\"+.value"
+
+op_status=0
+while [ ${#} -gt 0 ] ; do
+    arg_name="${1%%=*}"
+    arg_value="${1#*=}"
+    case "${arg_name}" in
+        --list|--list-configured)
+            if [ ! -v op_name ] ; then
+                declare -r op_name="list-configured"
+            fi
+            ;;
+        --list-known)
+            if [ ! -v op_name ] ; then
+                declare -r op_name="list-known"
+            fi
+            ;;
+        -n|--name)
+            d_name="${arg_value}"
+            ;;
+        -c|--connect)
+            if [ ! -v op_name ] ; then
+                declare -r op_name="connect"
+            fi
+            ;;
+        -d|--disconnect)
+            if [ ! -v op_name ] ; then
+                declare -r op_name="disconnect"
+            fi
+            ;;
+        --disconnect-all)
+            if [ ! -v op_name ] ; then
+                declare -r op_name="disconnect-all"
+            fi
+        ;;
+        --verbose)
+            true
+        ;;
+        *)
+            echo "ERROR:$( basename "${0}" ):${LINENO}: Got unknown argument '${arg_name}'." >&2
+            exit 1
+    esac
+    shift
+done
+
+if [ "${op_name}" == "list-configured" ] ; then  # List devices by names known to this script.
+    set +x
+    echo "INFO:${0}:${LINENO}: Configuration file is '${file_cnf}'." >&2
+    for name in "${!device_mac_pool[@]}"; do
+        echo -n "$name"
+        echo -ne "\t= "
+        echo "${device_mac_pool[$name],,}"
+    done
+    exit
+elif [ "${op_name}" == "list-known" ] ; then  # List devices as they are known for OS.
+    set +x
+    bluetoothctl devices
+    exit
+elif [ "${op_name}" == "connect" ] ; then
+    bluetoothctl connect "${device_mac_pool[$d_name]}" \
+        || op_status=$?
+elif [ "${op_name}" == "disconnect" ] ; then
+    bluetoothctl disconnect "${device_mac_pool[$d_name]}" \
+        || op_status=$?
+elif [ "${op_name}" == "disconnect-all" ] ; then
+    for mac in "${device_mac_pool[@]}" ; do
+        bash -c "bluetoothctl disconnect '${mac}' || true" &
+    done
+fi
+
+if [ "${op_status}" != "0" ] ; then
+    read -p "ERROR:${0}:${LINENO}: Had failure. Press Enter to continue..."
+fi
+
+set +x
+echo "INFO:${0}:${LINENO}: Job done." >&2
+echo "" >&2
