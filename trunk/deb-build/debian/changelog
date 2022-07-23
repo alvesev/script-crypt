@@ -1,8 +1,15 @@
+script-crypt (15) una; urgency=low
+
+  * Wi-Fi access point cerator.
+  * Known nodes refresher.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Sut, 23 Jul 2022 12:32:00 +0600
+
 script-crypt (14) ulyana; urgency=low
 
   * Bluetooth state trigger added.
 
- -- Alex Vesev <alex.vesev@gmail.com>  Sun, 10 oct 2021 19:41:00 +0300
+ -- Alex Vesev <alex.vesev@gmail.com>  Sun, 10 Oct 2021 19:41:00 +0300
 
 script-crypt (13) ulyana; urgency=low
 
