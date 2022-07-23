@@ -83,7 +83,7 @@ function produce_targets_list {
 function reload_host {
     local -r hst="${1}"
     local -r prt="${2}"
-    local -r exit_code=0
+    local    exit_code=0
 
     #   Address specification example: [127.0.0.1]:12345
     if ssh-keygen \
