@@ -1,9 +1,15 @@
+script-crypt (16) una; urgency=low
+
+  * Network connection reset script for NM accompanied OS.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Sat, 03 Sep 2022 10:55:00 +0600
+
 script-crypt (15) una; urgency=low
 
   * Wi-Fi access point cerator.
   * Known nodes refresher.
 
- -- Alex Vesev <alex.vesev@gmail.com>  Sut, 23 Jul 2022 12:32:00 +0600
+ -- Alex Vesev <alex.vesev@gmail.com>  Sat, 23 Jul 2022 12:32:00 +0600
 
 script-crypt (14) ulyana; urgency=low
 
