@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-#  Copyright 2007-2014 Alex Vesev
+#  Copyright 2007-2022 Alex Vesev
 #
 #  This file is part of Script Crypt.
 #
@@ -22,17 +22,37 @@
 
 
 PS4="CMD:\${0}:\${LINENO}:pid=\${$}: "
-set -x
-set -e
+set -xeu
 
 declare -r packageName="script-crypt"
+
+declare -r dir_this="$( dirname "${0}" )"
+
+declare -r dir_artifacts="$( cd "${dir_this}" ; echo -n "$(pwd)/../../artifacts" )"
+if [ ! -d "${dir_artifacts}" ] ; then
+    mkdir -p "${dir_artifacts}"
+fi
+
+pushd "${dir_this}"
 
 echo "INFO:${0}:${LINENO}: Building the package."
 fakeroot dpkg-buildpackage -b -us -uc # XXX - GPG sign?
 
-echo "INFO:${0}:${LINENO}: Moving the package and other files into current directory."
-mv --force "../${packageName}_"*"_"*".changes" "."
-mv --force "../${packageName}_"*"_"*".deb" "."
+pushd ..
+while read f_name ; do
+    if [ -n "${f_name}" ] && [ ! -f "${f_name}.md5" ] ; then
+        md5sum "$( basename "${f_name}" )" > "${f_name}.md5"
+    fi
+done <<< "$( find . -maxdepth 1 -iname "*.deb" )"
+popd
+
+if [ "$( pwd )" != "${dir_artifacts}" ] ; then
+    echo "INFO:${0}:${LINENO}: Moving the package and other files into '${dir_artifacts}'."
+    mv --force "../${packageName}_"*"_"*".changes" "${dir_artifacts}"
+    mv --force "../${packageName}_"*"_"*".buildinfo" "${dir_artifacts}"
+    mv --force "../${packageName}_"*"_"*".deb" "${dir_artifacts}"
+    mv --force "../${packageName}_"*"_"*".md5" "${dir_artifacts}"
+fi
 
 echo "INFO:${0}:${LINENO}: Going to perform cleanup."
 make clean
