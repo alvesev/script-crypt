@@ -59,7 +59,7 @@ function produce_targets_list {
     local prt
 
     while read hst prt ; do
-        if nc -vz -w 1 "${hst}" "${prt}" 1>/dev/null 2>/dev/null ; then
+        if timeout 0.2 nc -vz -w 1 "${hst}" "${prt}" 1>/dev/null 2>/dev/null ; then
             echo "processing_target ${hst} ${prt}"
             while read ip ; do
                 echo "processing_target ${ip} ${prt}"
@@ -97,7 +97,7 @@ function reload_host {
         echo "ERROR:$( basename "${0}" ):${LINENO}: Failed to remove '${hst}:${prt}' from known hosts." >&2
         exit_code=1
     fi
-    if ssh-keyscan \
+    if timeout 0.4 ssh-keyscan \
                     -T "${timeout_conn}" \
                     -p "${prt}" -H "${hst}" \
                         >> "${HOME}/.ssh/known_hosts" \
