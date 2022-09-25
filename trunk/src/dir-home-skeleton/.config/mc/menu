@@ -226,14 +226,14 @@ r       no files selected for: multi rename - KRename
 
 =+ ! t t
 p   Print current name and - into clipboard
-        echo \"%d/%f\"
-        echo -n \"%d/%f\" | xclip
-        echo -n \"%d/%f\" | xclip -selection c
+        echo "%d/%f"
+        echo -n "%d/%f" | xclip
+        echo -n "%d/%f" | xclip -selection c
 
 =+ t t
 p   Print selected names and - into clipboard
         set %t
-        as_text_all=$(for name in "${@}" ; do echo "'%d/${name}'" ; done)
+        as_text_all=$(for name in "${@}" ; do echo "%d/${name}" ; done)
         echo -n "${as_text_all}" | xclip
         echo -n "${as_text_all}" | xclip -selection c
         echo "${as_text_all}"
