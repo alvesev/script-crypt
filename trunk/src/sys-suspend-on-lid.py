@@ -177,6 +177,7 @@ def process_lid(conf):
                 l.info("Lid has been {}.".format(lid_conf["state"]))
                 try:
                     for cmd in conf['actions']['on_close']:
+                        cmd = str(cmd)
                         l.debug("Executing command: {}".format(cmd))
                         fb = system(cmd)
                         if fb != 0:
