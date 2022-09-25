@@ -1,0 +1,8 @@
+---
+
+actions:
+    on_close:
+        - wmctrl -k on
+        #- xscreensaver-command -lock
+        #- sudo /usr/sbin/pm-suspend
+        - /bin/systemctl suspend --ignore-inhibitors

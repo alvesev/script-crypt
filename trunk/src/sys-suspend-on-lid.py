@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 #
-#  Copyright 2017 Alex Vesev
+#  Copyright 2017-2022 Alex Vesev
 #
 #  This file is part of Script Crypt.
 #
@@ -21,15 +21,34 @@
 ##
 
 
+import inspect, os
+this_directory = os.path.dirname(inspect.getabsfile(lambda: 0))
+
+file_conf_pool = (
+                    os.path.join(this_directory, "sys-suspend-on-lid.yaml"),
+                    "/etc/sys-suspend-on-lid.yaml"
+                    )
+conf_default = {  # Default configuration.
+    "actions": {
+        "on_close": (
+            "wmctrl -k on",
+            # "xscreensaver -command -lock",
+            # "sudo /usr/sbin/pm-suspend",
+            "/bin/systemctl suspend --ignore-inhibitors"
+        )
+    }
+}
+
+
+import getpass
+
 import yaml
 import logging
 from logging.handlers import RotatingFileHandler
 from time import sleep
-import os
 from os import system
 import sys
-import fcntl
-import logging
+#import fcntl
 
 
 # # #
@@ -39,16 +58,75 @@ import logging
 #
 
 
-file_log = "/var/log/sys-suspend-on-lid.log"
+def get_log_file_name():
+    user = getpass.getuser()
+    if user == "root":
+        log_filename = "/var/log/sys-suspend-on-lid.log"
+    else:
+        log_filename = os.path.join("/tmp",
+                                    user + "-" + "sys-suspend-on-lid.log")
+    return log_filename
+
+file_log = get_log_file_name()
 size_log = 1*1024*1024
 lid_state_yaml = "/proc/acpi/button/lid/LID/state"
 
+format = "%(asctime)s:pid=%(process)d:%(filename)s:%(lineno)s: %(message)s"
+if "--debug" in sys.argv:
+    level = logging.DEBUG
+else:
+    level = logging.INFO
+logging.basicConfig(format=format, level="INFO")
+lform = logging.Formatter(format)
+flh = RotatingFileHandler(file_log, maxBytes=size_log, backupCount=2)
+l = logging.getLogger('root')
+
+flh.setFormatter(lform)
+flh.setLevel(level)
+l.addHandler(flh)
+l.setLevel(level)
+
 
 # # #
  # #
 # #
  #
 #
+
+
+def get_conf():
+    conf = {}
+    try:
+        for f in file_conf_pool:
+            if os.path.exists(f):
+                l.info("Configuration file '{}'.".format(f))
+                with open(f, "r") as fh:
+                    conf = yaml.safe_load(fh)
+                break
+    except Exception as e:
+        l.error(e)
+    if not conf:
+        l.warning("No configuration file loaded, using defaults."
+                  " Configuration file names are:\n"
+                  "{}".format("\n".join(file_conf_pool)))
+        conf = conf_default
+    return conf
+
+
+def validate():
+    for exe_file in ("/usr/bin/sudo",
+                     "/usr/bin/xscreensaver-command",
+                     "/usr/bin/wmctrl",
+                     "/bin/systemctl"):
+        if not which(exe_file):
+            l.error("Executable '{}'"
+                    "not found in PATH or at all.".format(exe_file))
+            exit(1)
+
+    if not os.path.exists(lid_state_yaml):
+        l.error("Lid state information source"
+                + " '{}' not found at start.".format(lid_state_yaml))
+
 
 def which(program):
     import os
@@ -68,6 +146,52 @@ def which(program):
 
     return None
 
+def fork_child_and_exit_parent():
+    '''
+        Exit if this is a parent. Child will be adopted by
+        process with PID=1. Each launch leaves it's child
+        running in "background".
+    '''
+    if os.fork():
+        sys.exit()
+
+
+def process_lid(conf):
+
+    l.info("Starting lid state watching."
+           + " Using flag from '{}'.".format(lid_state_yaml)
+           + " Log file is '{}'.".format(file_log))
+
+    is_after_sleep = False
+
+    while True:
+        if is_after_sleep:
+            is_after_sleep = False
+            sleep(5)
+        if os.path.exists(lid_state_yaml):
+            with open(lid_state_yaml, "r") as fh:
+                lid_conf = yaml.safe_load(fh)
+            if lid_conf["state"] == "open":
+                sleep(1)
+            elif lid_conf["state"] == "closed":
+                l.info("Lid has been {}.".format(lid_conf["state"]))
+                try:
+                    for cmd in conf['actions']['on_close']:
+                        l.debug("Executing command: {}".format(cmd))
+                        fb = system(cmd)
+                        if fb != 0:
+                            l.error("Got error exit code '{}'".format(fb) +
+                                    " from '{}'.".format(cmd))
+                except Exception as e:
+                    l.error("Fail during going to sleep mode.")
+                    l.error(e)
+                is_after_sleep = True
+            else:
+                l.error("Unknown lid state '{}'.".format(lid_conf["state"]))
+        else:
+            sleep(120)
+
+
 # # #
  # #
 # #
@@ -75,55 +199,13 @@ def which(program):
 #
 
 
-format = "%(asctime)s:pid=%(process)d:%(filename)s:%(lineno)s: %(message)s"
-level = logging.INFO
-logging.basicConfig(format=format, level="INFO")
-lform = logging.Formatter(format)
-flh = RotatingFileHandler(file_log, maxBytes=size_log, backupCount=2)
-l = logging.getLogger('root')
+if __name__ == "__main__":
 
-flh.setFormatter(lform)
-flh.setLevel(level)
-l.addHandler(flh)
-l.setLevel(level)
+    validate()
 
-l.info("Starting lid state watching."
-       + " Using flag from '{}'.".format(lid_state_yaml)
-       + " Log file is '{}'.".format(file_log))
+    conf = get_conf()
 
-for exe_file in ("/usr/bin/sudo",
-                 "/usr/bin/xscreensaver-command",
-                 "/usr/bin/wmctrl"):
-    if not which(exe_file):
-        l.error("Executable '{}' not found in PATH or at all.".format(exe_file))
-        exit(1)
+    if "--debug" not in sys.argv:
+        fork_child_and_exit_parent()
 
-if not os.path.exists(lid_state_yaml):
-    l.error("Lid state information source"
-            + " '{}' not found at start.".format(lid_state_yaml))
-
-if os.fork():
-    sys.exit()
-
-is_after_sleep = False
-
-while True:
-    if is_after_sleep:
-        is_after_sleep = False
-        sleep(5)
-    if os.path.exists(lid_state_yaml):
-        with open(lid_state_yaml, "r") as fh:
-            lid_conf = yaml.load(fh)
-        if lid_conf["state"] == "open":
-            sleep(1)
-        elif lid_conf["state"] == "closed":
-            l.info("Lid has been {}.".format(lid_conf["state"]))
-            system("wmctrl -k on")  # Minimize all windows.
-            #system("xscreensaver-command -lock")
-            #system("sudo /usr/sbin/pm-suspend")
-            system("sudo /bin/systemctl suspend --ignore-inhibitors")
-            is_after_sleep = True
-        else:
-            l.error("Unknown lid state '{}'.".format(lid_conf["state"]))
-    else:
-        sleep(120)
+    process_lid(conf)
