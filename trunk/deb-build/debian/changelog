@@ -1,3 +1,10 @@
+script-crypt (17) una; urgency=low
+
+  * Actions on laptop lid close are configurable.
+  * MC settings and actions output formatting.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Sat, 24 Sep 2022 20:56:00 +0600
+
 script-crypt (16) una; urgency=low
 
   * Network connection reset script for NM accompanied OS.
