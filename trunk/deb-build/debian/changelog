@@ -1,3 +1,9 @@
+script-crypt (18) una; urgency=low
+
+  * MC menu.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Sat, 01 Oct 2022 18:26:00 +0600
+
 script-crypt (17) una; urgency=low
 
   * Actions on laptop lid close are configurable.
