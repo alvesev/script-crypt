@@ -49,6 +49,16 @@ o       FireFox - open with
         CMD=/usr/bin/firefox-esr
         nohup $CMD %f %t 1>/dev/null 2>/dev/null &
 
++= f (\.[hH][tT][mM][l]|\.[hH][tT][mM]|\.[xX][hH][tT][mM][l])$ & t r
+o       SeaMonkey - open with
+        CMD=/usr/bin/seamonkey
+        nohup $CMD %f %t 1>/dev/null 2>/dev/null &
+
++= f (\.[jJ][sS][oO][nN]|\.[yY][aA][mM][lL]|\.[lL][iI][bB][sS][oO][nN][nN][eE][tT]|\.[jJ][sS][oO][nN][nN][eE][tT])$ & t r
+o       Browser - open with
+        CMD=/usr/bin/chromium-browser
+        nohup $CMD %f %t 1>/dev/null 2>/dev/null &
+
 += f (\.[pP][cC][xX]|\.[gG][iI][fF]|\.[pP][nN][gG]|\.[jJ][pP][gG]|\.[jJ][pP][eE][gG]|\.[tT][iI][fF]|\.[tT][iI][fF][fF]|\.[bB][mM][pP])$ & t r
 o       gThumb - open with
         nohup gthumb %f %t 1>/dev/null 2>/dev/null &
@@ -65,6 +75,10 @@ o       Gimp - open with
 o       Inkscape - open with
         nohup inkscape %f %t 1>/dev/null 2>/dev/null &
 
++= f \.[dD][rR][aA][wW][iI][oO]$ & t r
+o       Drawio - open with
+        nohup drawio %f %t 1>/dev/null 2>/dev/null &
+
 += f (\.[sS][lL][aA]|\.[sS][lL][aA]\.[gG][zZ])$ & t r
 o       Scribus - open with
         nohup scribus %f %t 1>/dev/null 2>/dev/null &
@@ -72,6 +86,10 @@ o       Scribus - open with
 += f \.[pP][dD][fF]$ & t r
 o       Evince - open with
         nohup evince %f %t 1>/dev/null 2>/dev/null &
+
++= f \.[pP][dD][fF]$ & t r
+o       Master PDF Editor - open with
+        nohup masterpdfeditor5 %f %t 1>/dev/null 2>/dev/null &
 
 += f [rR][tT][fF]$ & t r
 o       Rich or similar text format - open with Libre Office
@@ -85,7 +103,7 @@ o       Little and sleek Office document - open with
 
 += f \.[gG][eE][aA][nN][yY]$ & t r
 o       Geany - open with
-        nohup evince %f %t 1>/dev/null 2>/dev/null &
+        nohup geany %f %t 1>/dev/null 2>/dev/null &
 
 # Audacity: flac, ...
 += f \.([fF][lL][aA][cC]|[wW][aA][vV]|[oO][gG][gG]|[mM][pP][23]|[wW][aA][vV])$ & t r
@@ -100,7 +118,13 @@ o       Audacious - enqueue to
 o       Audacious - enqueue to
         nohup audacious --enqueue-to-temp %t 1>/dev/null 2>/dev/null &
 
-
+# VLC player and video-audio files names
++ ! t t & f \.([mM][pP][234]|[wW][eE][bB][mM]|[fF][lL][aA][cC]|[wW][aA][vV]|[oO][gG][gG]|[mM][pP][23]|[wW][aA][vV])$
+o       VLC - enqueue to
+        nohup vlc  %f 1>/dev/null 2>/dev/null &
++ t t & f \.([mM][pP][234]|[wW][eE][bB][mM]|[fF][lL][aA][cC]|[wW][aA][vV]|[oO][gG][gG]|[mM][pP][23]|[wW][aA][vV])$
+o       VLC - enqueue to
+        nohup vlc %t 1>/dev/null 2>/dev/null &
 
 # torrent
 += f \.([tT][oO][rR][rR][eE][nN][tT])$ & t r
@@ -121,6 +145,39 @@ o       FreeMind - open with
 += f \.([xX][zZ]|[tT][aA][rR]|[tT][aA][rR]\.7[zZ])$ & t r
 o       File-roller - open with
         nohup file-roller %f %t 1>/dev/null 2>/dev/null &
++= f \.[zZ][iI][pP]$ & t r
+o       Test Zip file integrity
+        err_state=0
+        for fName in $( for path in %f %t ; do
+                            echo "${path}"
+                        done | sort | uniq )
+        do
+            if ! zip --test "%d/${fName}" ; then
+                echo "ERROR: Test failed for '${fName}'."
+                err_state=1
+            fi
+        done
+        for fName in %T ; do
+            if ! zip --test "%D/${fName}" ; then
+                err_state=1
+                echo "ERROR: Test failed for '${fName}'."
+            fi
+        done
+        set +x
+        if test "${err_state}" -eq "0" ; then
+            echo "SUCCESS: Test(s) is(are) Ok. Press 'Enter' to continue..."
+        else
+            echo "ERROR: Test(s) failed. Press 'Enter' to continue..."
+        fi
+        read -p ' ' x
+
+# Markdown
++= f \.([mM][dD])$ & t r
+o       Retext - open with
+        nohup retext %f %t 1>/dev/null 2>/dev/null &
++= f \.([mM][dD])$ & t r
+o       Atom - open with
+        nohup atom %f %t 1>/dev/null 2>/dev/null &
 
 ------------------------------------------------------------
 + t t
@@ -176,6 +233,27 @@ c       calculate MD5 checksum
         done
 + ! t t
 c       no files selected for: calculate MD5 checksum
+        /bin/true
+
++ t t
+d       compare directories
+        dirCurrentPanel="%d"
+        dirNeighbourPanel="%D"
+        cliArguments=""
+        for fName in %t ; do
+            cliArguments="${cliArguments} '${dirCurrentPanel}/${fName}'"
+            echo "MC have evaluated from current panel: $cliArguments"
+        done
+        for fName in %T ; do
+            cliArguments="${cliArguments} '${dirNeighbourPanel}/${fName}'"
+            echo "MC have evaluated from opposite panel: $cliArguments"
+        done
+        echo " "
+        echo "MC have resulting files list: $cliArguments"
+        echo " "
+        bash -c "nohup /usr/share/smartsynchronize/bin/smartsynchronize.sh $cliArguments 2>/dev/null 1>/dev/null &"
++ ! t t
+d       no files selected for: compare directories
         /bin/true
 
 + t t
@@ -249,48 +327,58 @@ P   Print selected names as single line and - into clipboard
 ------------------------------------------------------------
 
 ##
-#  Compesion and packaging tools
+#  Compression and packaging tools
 #
 
 2       Pack the current subdirectory (tar)
-        donor=`basename %d /`
-        f_tar=$donor-`get-timestamp`
-        echo -n "Name of the compressed file (without extension) [$f_tar]: "
+        f_out=`basename %d /`-`get-timestamp  --with-seconds`
+        Pwd=`basename %d /`
+        echo -n "Name of the compressed file (without extension) [$f_out]: "
         read tar
-        if [ "$tar"x = x ]; then tar="$f_tar"; fi
+        if [ "$tar"x = x ]; then tar="$f_out"; fi
         cd .. && \
-        tar cf - "$donor" > "$tar.tar" && \
+        tar cf - "$Pwd" > "$tar.tar" && \
         echo "../$tar.tar created."
 
 3       Compress the current subdirectory (tar.gz)
-        donor=`basename %d /`
-        f_tar=$donor-`get-timestamp`
-        echo -n "Name of the compressed file (without extension) [$f_tar]: "
+        f_out=`basename %d /`-`get-timestamp  --with-seconds`
+        Pwd=`basename %d /`
+        echo -n "Name of the compressed file (without extension) [$f_out]: "
         read tar
-        if [ "$tar"x = x ]; then tar="$f_tar"; fi
+        if [ "$tar"x = x ]; then tar="$f_out"; fi
         cd .. && \
-        tar cf - "$donor" | gzip -f9 > "$tar.tar.gz" && \
+        tar cf - "$Pwd" | gzip -f9 > "$tar.tar.gz" && \
         echo "../$tar.tar.gz created."
 
 4       Compress the current subdirectory (tar.bz2)
-        donor=`basename %d /`
-        f_tar=$donor-`get-timestamp`
-        echo -n "Name of the compressed file (without extension) [$f_tar]: "
+        f_out=`basename %d /`-`get-timestamp  --with-seconds`
+        Pwd=`basename %d /`
+        echo -n "Name of the compressed file (without extension) [$f_out]: "
         read tar
-        if [ "$tar"x = x ]; then tar="$f_tar"; fi
+        if [ "$tar"x = x ]; then tar="$f_out"; fi
         cd .. && \
-        tar cf - "$donor" | bzip2 -f > "$tar.tar.bz2" && \
+        tar cf - "$Pwd" | bzip2 -f > "$tar.tar.bz2" && \
         echo "../$tar.tar.bz2 created."
 
 5       Compress the current subdirectory (tar.7z)
-        donor=`basename %d /`
-        f_tar=$donor-`get-timestamp`
-        echo -n "Name of the compressed file (without extension) [$f_tar]: "
+        f_out=`basename %d /`-`get-timestamp  --with-seconds`
+        Pwd=`basename %d /`
+        echo -n "Name of the compressed file (without extension) [$f_out]: "
         read tar
-        if [ "$tar"x = x ]; then tar="$f_tar"; fi
+        if [ "$tar"x = x ]; then tar="$f_out"; fi
         cd .. && \
-        tar cf - "$donor" | 7za a -si "$tar.tar.7z" && \
+        tar cf - "$Pwd" | 7za a -si "$tar.tar.7z" && \
         echo "../$tar.tar.7z created."
+
+6       Compress the current subdirectory (Zip)
+        f_out=`basename %d /`-`get-timestamp  --with-seconds`
+        Pwd=`basename %d /`
+        echo -n "Name of the compressed file (without extension) [$f_out]: "
+        read arch_name
+        if [ "$arch_name"x = x ]; then arch_name="$f_out"; fi
+        cd .. && \
+        zip -9 --recurse-paths "$arch_name.zip" "$Pwd" && \
+        echo "../$arch_name.zip created."
 
 =+ f \.tar\.gz$ | f \.tar\.z$ | f \.tgz$ | f \.tpz$ | f \.tar\.lz$ | f \.tar\.lzma$ | f \.tar\.7z$ | f \.tar\.xz$ | f \.tar\.Z$ | f \.tar\.bz2$ & t r
 x       Extract the contents of a compressed tar file
@@ -322,27 +410,29 @@ x       Extract the contents of a compressed tar file
 
 + ! t t
 t       Tar'ify single file
-        fName=`basename %f`
+        fName=`basename %f`-`get-timestamp  --with-seconds`
         if test -e "${fName}.tar" ; then
             echo -ne "\n\n"
             read -p "Error: file '${fName}.tar' already exist. Press 'Enter' key to continue." voidVar
             exit 1
         fi
-        tar --keep-old-files --create "${fName}" > "${fName}.tar" \
+        tar --keep-old-files --file "${fName}.tar" --create `basename %f` \
             && echo "'${fName}.tar' created." # --keep-old-files - Don't replace existing files when extracting.
 
 + t t
 t       Tar'ify all selected files (one TAR per file)
+        ts=`get-timestamp  --with-seconds`
         for fName in %t ; do
             fName=`basename "${fName}"`
+            fTar="$fName-$ts.tar"
             if test -e "$fName.tar" ; then
                 echo -ne "\n\n"
-                read -p "Error: file '${fName}.tar' already exist. Press 'Enter' key to continue." voidVar
+                read -p "Error: file '${fTar}' already exist. Press 'Enter' key to continue." voidVar
                 exit 1
             fi
             cd %d \
-                && tar --keep-old-files --create "${fName}" > "$fName.tar" \
-                && echo "'$fName.tar' created." # --keep-old-files - Don't replace existing files when extracting.
+                && tar --keep-old-files --file "${fTar}" --create "${fName}" \
+                && echo "'${fTar}' created." # --keep-old-files - Don't replace existing files when extracting.
         done
 
 + ! t t
@@ -385,6 +475,31 @@ B       Bzip2 or bunzip2 selected files
             *.bz2) DECOMP=-d;;
           esac
           bzip2 $DECOMP -v --keep "$i"
+        done
+
++ ! t t
+i       Zip or UnZip single file
+        case %f in
+            *.zip)
+                unzip -d . %f
+                ;;
+            *)
+                zip -9 --recurse-paths %f.zip %f
+                ;;
+        esac
+
++ t t
+I       Zip or UnZip selected files
+        for i in %t
+        do
+            case "${i}" in
+                *.zip)
+                    unzip -d . "${i}"
+                    ;;
+                *)
+                    zip -9 --recurse-paths "${i}.zip" "${i}"
+                    ;;
+            esac
         done
 
 + f \.tar.gz$ | f \.tgz$ | f \.tpz$ | f \.tar.Z$ | f \.tar.z$ | f \.tar.bz2$ | f \.tar.F$ & t r & ! t t
