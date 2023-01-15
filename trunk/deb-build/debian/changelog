@@ -1,3 +1,9 @@
+script-crypt (19) vanessa; urgency=low
+
+  * Shell environment settings and configurations.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Sun, 15 Jan 2023 22:32:00 +0100
+
 script-crypt (18) una; urgency=low
 
   * MC menu.
