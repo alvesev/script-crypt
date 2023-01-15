@@ -9,8 +9,6 @@
 ####         . ~/.bash_aliases
 ####     fi
 
-
-
 alias get-tag-time="date '+%Y-%m-%d-%H%M$( date '+%z' | sed -e 's#-#m#g;s#+#p#g' )' "
 alias get-tag-time-full="date '+%Y-%m-%d-%H%M$( date '+%z' | sed -e 's#-#m#g;s#+#p#g' )-%S.%N' "
 alias get-tag-time-sec="date '+%Y-%m-%d-%H%M$( date '+%z' | sed -e 's#-#m#g;s#+#p#g' )-%S' "

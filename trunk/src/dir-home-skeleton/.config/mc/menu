@@ -60,7 +60,7 @@ o       SeaMonkey - open with
         nohup $CMD %f %t 1>/dev/null 2>/dev/null &
 
 += f (\.[jJ][sS][oO][nN]|\.[yY][aA][mM][lL]|\.[lL][iI][bB][sS][oO][nN][nN][eE][tT]|\.[jJ][sS][oO][nN][nN][eE][tT])$ & t r
-o       Browser - open with
+o       Chromium - open with
         CMD=/usr/bin/chromium-browser
         nohup $CMD %f %t 1>/dev/null 2>/dev/null &
 

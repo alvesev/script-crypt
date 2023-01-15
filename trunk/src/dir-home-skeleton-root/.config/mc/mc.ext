@@ -534,7 +534,7 @@ type/^PDF
 # html
 regex/\.([hH][tT][mM][lL]?)$
 #        Open=(if test -n "" && test -n "$DISPLAY"; then ( file://%d/%p &) 1>&2; else links %f || lynx -force_html %f || ${PAGER:-more} %f; fi) 2>/dev/null
-        Open=nohup firefox %f 1>/dev/null 2>/dev/null &
+        Open=nohup browser-current %f 1>/dev/null 2>/dev/null &
         Edit=nohup geany %f 1>/dev/null 2>/dev/null &
         View=%view{ascii} links -dump %f 2>/dev/null || w3m -dump %f 2>/dev/null || lynx -dump -force_html %f
 
