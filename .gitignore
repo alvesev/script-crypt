@@ -4,6 +4,7 @@
 /tmp
 /*/tmp
 *.log
+/artifacts/
 
 /.project
 /.pydevproject
