@@ -45,11 +45,11 @@ o       MEdit - open with
         nohup medit %f %t 1>/dev/null 2>/dev/null &
 
 += f (\.[hH][tT][mM][l]|\.[hH][tT][mM]|\.[xX][hH][tT][mM][l])$ & t r
-o       FireFox - open with
-        if [ -n "$( which firefox-esr )" ] ; then
-            CMD=`which firefox-esr`
-        elif [ -n "$( which firefox )" ] ; then
-            CMD=`which firefox`
+o       WWW browser - open with
+        if which browser-current ; then
+            CMD=`which browser-current`
+        else
+            CMD=x-www-browser
         fi
         echo "Using '${CMD}'." >&2
         nohup "${CMD}" %f %t 1>/dev/null 2>/dev/null &
