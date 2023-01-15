@@ -46,8 +46,13 @@ o       MEdit - open with
 
 += f (\.[hH][tT][mM][l]|\.[hH][tT][mM]|\.[xX][hH][tT][mM][l])$ & t r
 o       FireFox - open with
-        CMD=/usr/bin/firefox-esr
-        nohup $CMD %f %t 1>/dev/null 2>/dev/null &
+        if [ -n "$( which firefox-esr )" ] ; then
+            CMD=`which firefox-esr`
+        elif [ -n "$( which firefox )" ] ; then
+            CMD=`which firefox`
+        fi
+        echo "Using '${CMD}'." >&2
+        nohup "${CMD}" %f %t 1>/dev/null 2>/dev/null &
 
 += f (\.[hH][tT][mM][l]|\.[hH][tT][mM]|\.[xX][hH][tT][mM][l])$ & t r
 o       SeaMonkey - open with
@@ -484,12 +489,13 @@ i       Zip or UnZip single file
                 unzip -d . %f
                 ;;
             *)
-                zip -9 --recurse-paths %f.zip %f
+                zip -9 --recurse-paths %f-`get-timestamp`.zip %f
                 ;;
         esac
 
 + t t
-I       Zip or UnZip selected files
+I       Zip or UnZip selected files (one arch. per file)
+        ts=`get-timestamp`
         for i in %t
         do
             case "${i}" in
@@ -497,7 +503,7 @@ I       Zip or UnZip selected files
                     unzip -d . "${i}"
                     ;;
                 *)
-                    zip -9 --recurse-paths "${i}.zip" "${i}"
+                    zip -9 --recurse-paths "${i}-${ts}.zip" "${i}"
                     ;;
             esac
         done
