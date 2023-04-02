@@ -39,7 +39,7 @@ set -xeu -o pipefail
 
 declare -r bt_state_soft_trigger="$( \
             rfkill --output-all --json \
-                | jq -r '.""[] | select( (.type=="bluetooth") and (.device=="tpacpi_bluetooth_sw") ) | .soft' )"
+                | jq -r '.rfkilldevices[] | select( (.type=="bluetooth") and (.device=="tpacpi_bluetooth_sw") ) | .soft' )"
 
 
 ###
