@@ -48,9 +48,14 @@ if [ "${*}" != "${*/--verbose/}" ] ; then
 fi
 
 declare -r f_cnf="${1:-${HOME}/.ssh/known-test-conns.json}"
+echo "INFO:$( basename "${0}" ):${LINENO}: Using configuration file '${f_cnf}'." >&2
+
 declare -t timeout_conn="5"  # In seconds.
 
-declare -a errors_collection=()
+file_err_log="$( mktemp --tmpdir="/dev/shm" "$( basename "${0}" ).$$.XXXX.log" )"
+declare -r file_err_log
+trap "rm -rf '${file_err_log}'"  EXIT QUIT TERM ABRT INT  # KILL and STOP can't be intercepted.
+
 
 ###
 ##
@@ -61,18 +66,22 @@ function produce_targets_list {
     local prt
 
     while read hst prt ; do
-        if timeout 0.2 nc -vz -w 1 "${hst}" "${prt}" 1>/dev/null 2>/dev/null ; then
-            echo "processing_target ${hst} ${prt}"
-            while read ip ; do
-                echo "processing_target ${ip} ${prt}"
-            done <<< "$( cat /etc/hosts \
-                                | egrep -v '^[[:space:]]{0,}#' \
-                                | egrep "${hst}" \
-                                | awk '{print $1}' \
-                                | sort \
-                                | uniq )"
-        else
-            echo "WARNING:$( basename "${0}" ):${LINENO}: '${hst}:${prt}' is unreachable." >&2
+        if [ -n "${hst}" ] && [ -n "${prt}" ] ; then
+            if timeout 0.2 nc -vz -w 1 "${hst}" "${prt}" 1>/dev/null 2>/dev/null ; then
+                echo "processing_target ${hst} ${prt}"
+                while read ip ; do
+                    if [ -n "${ip}" ] ; then
+                        echo "processing_target ${ip} ${prt}"
+                    fi
+                done <<< "$( cat /etc/hosts \
+                                    | egrep -v '^[[:space:]]{0,}#' \
+                                    | egrep "${hst}" \
+                                    | awk '{print $1}' \
+                                    | sort \
+                                    | uniq )"
+            else
+                echo "WARNING:$( basename "${0}" ):${LINENO}: '${hst}:${prt}' is unreachable." >&2
+            fi
         fi
     done <<< "$( jq \
                         -r \
@@ -97,8 +106,7 @@ function reload_host {
         true #echo "INFO:$( basename "${0}" ):${LINENO}: '${hst}:${prt}' - removed." >&2
     else
         message="ERROR:$( basename "${0}" ):${LINENO}: Failed to remove '${hst}:${prt}' from known hosts."
-        echo "${messsage}" >&2
-        errors_collection+=("${messsage}")
+        echo "${message}" >> "${file_err_log}"
         #exit_code=1
     fi
     if timeout 0.4 ssh-keyscan \
@@ -110,11 +118,9 @@ function reload_host {
         true #echo "INFO:$( basename "${0}" ):${LINENO}: '${hst}:${prt}' - added." >&2
     else
         message="ERROR:$( basename "${0}" ):${LINENO}: Failed to add '${hst}:${prt}'."
-        echo "${message}" >&2
-        errors_collection+=("${message}")
+        echo "${message}" >> "${file_err_log}"
         #exit_code=1
     fi
-
     return 0  # Errors are collected. No stop on error.
 }
 
@@ -147,12 +153,20 @@ Configuration file example:
 fi
 
 while read marker host port ; do
-    reload_host "${host}" "${port}" &
+    if [ -n "${host}" ] && [ -n "${port}" ] ; then
+        reload_host "${host}" "${port}" &
+    fi
 done <<< "$( produce_targets_list \
                 | grep processing_target \
                 | sort \
                 | uniq )"
 wait
 
-set +x
-echo "INFO:$( basename "${0}" ):${LINENO}: Job done." >&2
+if [ "$( stat -c '%s' "${file_err_log}" )" == "0" ] ; then
+    set +x
+    echo "INFO:$( basename "${0}" ):${LINENO}: Job done." >&2
+else
+    set +x
+    cat "${file_err_log}" >&2
+    exit 1
+fi
