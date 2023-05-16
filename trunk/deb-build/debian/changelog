@@ -1,3 +1,9 @@
+script-crypt (20) vanessa; urgency=low
+
+  * Refresh development hosts routine.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Tue, 16 May 2023 08:46:00 +0100
+
 script-crypt (19) vanessa; urgency=low
 
   * Shell environment settings and configurations.
