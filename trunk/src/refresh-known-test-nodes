@@ -50,6 +50,8 @@ fi
 declare -r f_cnf="${1:-${HOME}/.ssh/known-test-conns.json}"
 declare -t timeout_conn="5"  # In seconds.
 
+declare -a errors_collection=()
+
 ###
 ##
 #
@@ -83,7 +85,7 @@ function produce_targets_list {
 function reload_host {
     local -r hst="${1}"
     local -r prt="${2}"
-    local    exit_code=0
+    #local    exit_code=0
 
     #   Address specification example: [127.0.0.1]:12345
     if ssh-keygen \
@@ -94,8 +96,10 @@ function reload_host {
     then
         true #echo "INFO:$( basename "${0}" ):${LINENO}: '${hst}:${prt}' - removed." >&2
     else
-        echo "ERROR:$( basename "${0}" ):${LINENO}: Failed to remove '${hst}:${prt}' from known hosts." >&2
-        exit_code=1
+        message="ERROR:$( basename "${0}" ):${LINENO}: Failed to remove '${hst}:${prt}' from known hosts."
+        echo "${messsage}" >&2
+        errors_collection+=("${messsage}")
+        #exit_code=1
     fi
     if timeout 0.4 ssh-keyscan \
                     -T "${timeout_conn}" \
@@ -104,12 +108,14 @@ function reload_host {
                         2>/dev/null
     then
         true #echo "INFO:$( basename "${0}" ):${LINENO}: '${hst}:${prt}' - added." >&2
-     else
-        echo "ERROR:$( basename "${0}" ):${LINENO}: Failed to add '${hst}:${prt}'." >&2
-        exit_code=1
+    else
+        message="ERROR:$( basename "${0}" ):${LINENO}: Failed to add '${hst}:${prt}'."
+        echo "${message}" >&2
+        errors_collection+=("${message}")
+        #exit_code=1
     fi
 
-    return ${exit_code}
+    return 0  # Errors are collected. No stop on error.
 }
 
 ###
@@ -141,11 +147,12 @@ Configuration file example:
 fi
 
 while read marker host port ; do
-    reload_host "${host}" "${port}" || true
+    reload_host "${host}" "${port}" &
 done <<< "$( produce_targets_list \
                 | grep processing_target \
                 | sort \
                 | uniq )"
+wait
 
 set +x
 echo "INFO:$( basename "${0}" ):${LINENO}: Job done." >&2
