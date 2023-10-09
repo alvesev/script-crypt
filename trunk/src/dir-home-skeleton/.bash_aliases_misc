@@ -1,7 +1,11 @@
 #alias py2="python2 "
 #alias py3="python3 "
 
-alias a='cat ~/.bash_aliases | egrep -v "^#"'
+alias a='
+while read fName ; do
+    cat "${fName}" | egrep -v "^#"
+done <<< "$( find ~ -maxdepth 1 -type f -name ".bash_aliases_*" | sort -h )"
+'
 alias sa='source ~/.bash_aliases'
 
 alias ls='ls --color=auto --time-style="+%Y-%m-%d %H:%M"'
@@ -9,7 +13,7 @@ alias ll='ls -alF --time-style="+%Y-%m-%d %H:%M"'
 alias la='ls -A --time-style="+%Y-%m-%d %H:%M"'
 alias l='ls -CF --time-style="+%Y-%m-%d %H:%M"'
 
-alias h='history'
+alias h='history | less +G'
 alias g='egrep --color=auto'
 
 alias mc='/usr/bin/mc-wrapper-user-custom --bright'
@@ -24,5 +28,21 @@ alias p='pwd'
 
 alias p8="ping -c 2 8.8.8.8"
 
+alias j="journalctl --no-pager"
+alias s="systemctl"
+alias r="resolvectl"
+#alias rs="resolvectl status"
+
 alias pointer-speed-max="xinput --set-prop 'TPPS/2 IBM TrackPoint' 'libinput Accel Speed' 1"
 alias pointer-speed-half="xinput --set-prop 'TPPS/2 IBM TrackPoint' 'libinput Accel Speed' 0.5"
+
+alias c="ncal -M3"  # Latin letter 'c'.
+alias с="ncal -M3"  # Cyrillic letter 'с'.
+
+alias g-catch-router-connection-problems="egrep 'No response to .* echo-requests|failed to resolve|timeout of sccrp|link down at port 0'"
+alias g-catch-router-errors="egrep 'error|fail|unreachable|disconne|link down at port 0'"
+alias g-catch-router-l2tp-and-other="egrep 'L2TP|ndm'"
+alias g-catch-router-l2tp-only="egrep 'L2TP'"
+
+alias makepasswd-from-str="makepasswd --string '$( echo {a..z} {A..Z} {0..9} '-=~!@#$%^&*()_+[]{}|;:,.<>?' | tr --delete ' ' )'"
+
