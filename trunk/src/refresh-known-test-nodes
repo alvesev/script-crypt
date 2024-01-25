@@ -61,27 +61,37 @@ trap "rm -rf '${file_err_log}'"  EXIT QUIT TERM ABRT INT  # KILL and STOP can't 
 ##
 #
 
+
+function check_availability {
+    local hst="${1}"
+    local prt="${2}"
+
+    # Unreachable targets should not be reported.
+    if timeout 0.2 nc -vz -w 1 "${hst}" "${prt}" 1>/dev/null 2>/dev/null
+    then
+        echo "processing_target ${hst} ${prt}"
+        while read ip ; do
+            if [ -n "${ip}" ] ; then
+                echo "processing_target ${ip} ${prt}"
+            fi
+        done <<< "$( cat /etc/hosts \
+                            | egrep -v '^[[:space:]]{0,}#' \
+                            | egrep "${hst}" \
+                            | awk '{print $1}' \
+                            | sort \
+                            | uniq )"
+    else
+        echo "WARNING:$( basename "${0}" ):${LINENO}: '${hst}:${prt}' is unreachable." >&2
+    fi
+}
+
 function produce_targets_list {
     local hst
     local prt
 
     while read hst prt ; do
         if [ -n "${hst}" ] && [ -n "${prt}" ] ; then
-            if timeout 0.2 nc -vz -w 1 "${hst}" "${prt}" 1>/dev/null 2>/dev/null ; then
-                echo "processing_target ${hst} ${prt}"
-                while read ip ; do
-                    if [ -n "${ip}" ] ; then
-                        echo "processing_target ${ip} ${prt}"
-                    fi
-                done <<< "$( cat /etc/hosts \
-                                    | egrep -v '^[[:space:]]{0,}#' \
-                                    | egrep "${hst}" \
-                                    | awk '{print $1}' \
-                                    | sort \
-                                    | uniq )"
-            else
-                echo "WARNING:$( basename "${0}" ):${LINENO}: '${hst}:${prt}' is unreachable." >&2
-            fi
+            check_availability "${hst}" "${prt}" &
         fi
     done <<< "$( jq \
                         -r \
@@ -89,6 +99,7 @@ function produce_targets_list {
                         "${f_cnf}" \
                     | sort \
                     | uniq )"
+    wait
 }
 
 function reload_host {
