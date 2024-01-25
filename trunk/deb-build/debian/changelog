@@ -1,3 +1,17 @@
+script-crypt (22) vanessa; urgency=low
+
+  * Available hosts list generation shortened.
+  * Clean up.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Thu, 25 Jan 2024 20:43:00 +0100
+
+script-crypt (21) vanessa; urgency=low
+
+  * Shell aliases.
+  * Certain directories with executables are not a part of PATH.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Fri, 07 May 2023 20:13:00 +0200
+
 script-crypt (20) vanessa; urgency=low
 
   * Refresh development hosts routine.
