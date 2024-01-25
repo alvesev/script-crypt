@@ -1,20 +1,7 @@
 Script Crypt - some helpers and utilities to assist in everbeings.
 
-Debian package files can be obtained here:
- - https://sites.google.com/site/alexvesev/script-crypt_3_all.deb
- - https://sites.google.com/site/alexvesev/script-crypt_3_all.deb.md5
-
- - version 6:
-        DEB - https://drive.google.com/open?id=1vG9_18Ln8g0qhzh0CwZYQTIoPNwGH21Q
-        MD5 - https://drive.google.com/open?id=1rPMlDaP_6a4iJ_-geaAzD9n52PZZIbfW
-
- - version 7:
-        DEB - https://drive.google.com/open?id=1CHU1pcHbPwMZQ5ix8uIn27Tnp3OXQymd
-        MD5 - https://drive.google.com/open?id=11ZQj_fwAIb57NdSKY4Z1kmBk71j0U_6h
-
- - version 15:
-        DEB - https://drive.google.com/open?id=1yhADRd2wdyFK8qdTOPC2PwnuC5INNDqk
-        MD5 - https://drive.google.com/open?id=1XlAuPF8vQDjkUPUj218oB2imaxDLFP8h
+Debian package files can be obtained here at
+https://github.com/alvesev/artifacts/tree/trunk/script-cryptUPUj218oB2imaxDLFP8h
 
 #
 #  Copyright 2007-2022 Alex Vesev
