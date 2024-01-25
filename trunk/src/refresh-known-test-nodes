@@ -43,7 +43,7 @@
 
 PS4="+:\$( basename \"\${0}\" ):\${LINENO}: "
 set -eu
-if [ "${*}" != "${*/--verbose/}" ] ; then
+if [[ "${*}" =~ --verbose ]] ; then
     set -x
 fi
 
