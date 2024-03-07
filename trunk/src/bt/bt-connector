@@ -75,7 +75,7 @@ else
     fi
 fi
 
-cat "${file_cnf}" | jq 1>/dev/null  # Test configuration file syntax.
+jq . "${file_cnf}" 1>/dev/null  # Test configuration file syntax.
 
 declare -A device_mac_pool=()
 while read dev_name ; do
