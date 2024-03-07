@@ -29,7 +29,45 @@ if [ "${#}" -lt 1 ] || [ "${*}" != "${*/--help/}" ] ; then
 fi
 if [ "${*}" != "${*/--verbose/}" ] ; then
     set -x
+    OPT_VERBOSE="--verbose"
 fi
+
+###
+##
+#
+
+function bt_shutdown {
+    if TERM=xterm-256color whiptail \
+            --yesno \
+            --defaultno \
+            --backtitle " BT connector" \
+            --title "SHUTDOWN BT" \
+            "Switch BT off?" \
+            "7" "18" 3>&1 1>&2 2>&3
+    then
+        /usr/sbin/rfkill block bluetooth
+    fi
+}
+
+function ask_for_bt_wake_up {
+    if [ "$( trigger-bt-state --show  ${OPT_VERBOSE:-} )" == "blocked" ]
+    then
+        if TERM=xterm-256color whiptail \
+                --yesno \
+                --defaultno \
+                --backtitle " BT connector" \
+                --title "ENABLE BT" \
+                "Switch BT on?" \
+                "7" "18" 3>&1 1>&2 2>&3
+        then
+            trigger-bt-state --switch ${OPT_VERBOSE:-}
+        fi
+    fi
+}
+
+###
+##
+#
 
 if [ "${*}" != "${*/--install/}" ] ; then
 
@@ -139,6 +177,7 @@ elif [ "${op_name}" == "list-known" ] ; then  # List devices as they are known f
     bluetoothctl devices
     exit
 elif [ "${op_name}" == "connect" ] ; then
+    ask_for_bt_wake_up
     bluetoothctl connect "${device_mac_pool[$d_name]}" \
         || op_status=$?
 elif [ "${op_name}" == "disconnect" ] ; then
@@ -148,6 +187,8 @@ elif [ "${op_name}" == "disconnect-all" ] ; then
     for mac in "${device_mac_pool[@]}" ; do
         bash -c "bluetoothctl disconnect '${mac}' || true" &
     done
+    wait
+    bt_shutdown
 fi
 
 if [ "${op_status}" != "0" ] ; then
