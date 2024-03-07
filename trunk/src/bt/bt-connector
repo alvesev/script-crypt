@@ -40,10 +40,12 @@ function bt_shutdown {
     if TERM=xterm-256color whiptail \
             --yesno \
             --defaultno \
+            --yes-button "BT OFF" \
+            --no-button "cancel" \
             --backtitle " BT connector" \
             --title "SHUTDOWN BT" \
             "Switch BT off?" \
-            "7" "18" 3>&1 1>&2 2>&3
+            "7" "26" 3>&1 1>&2 2>&3
     then
         /usr/sbin/rfkill block bluetooth
     fi
@@ -55,10 +57,12 @@ function ask_for_bt_wake_up {
         if TERM=xterm-256color whiptail \
                 --yesno \
                 --defaultno \
+                --yes-button "BT ON" \
+                --no-button "cancel" \
                 --backtitle " BT connector" \
                 --title "ENABLE BT" \
                 "Switch BT on?" \
-                "7" "18" 3>&1 1>&2 2>&3
+                "7" "26" 3>&1 1>&2 2>&3
         then
             trigger-bt-state --switch ${OPT_VERBOSE:-}
         fi
