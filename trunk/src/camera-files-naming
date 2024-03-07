@@ -1,0 +1,63 @@
+#!/bin/bash
+
+PS4="+:$( basename "${0}" ):\${LINENO}: "
+set -eu
+if [[ "${*}" =~ --verbose ]] ; then set -x ; fi
+
+declare -r dir_target="${1?Target directory not specified at CLI.}"
+
+declare -rA types=(
+                ["VID"]="video"
+                ["IMG"]="photo"
+                ["PANO"]="photo-pano"
+                )
+
+function rename_it {
+    local -r token="${1}"
+    local -r f="${2}"
+    local dn bn name ext new_name new_path
+    dn="$( dirname "${f}" )"
+    bn="$( basename "${f}" )"
+    name="${bn%\.*}"
+    ext="${bn##*\.}"
+    new_name="$( sed "s/^${token}/file/" <<< "${name}" )"
+    new_path="${dn}/${new_name}_${types[$token]}.${ext}"
+    if [ -e "${new_path}" ] ; then
+        exist+=("${new_path}")
+        echo "ERROR:$( basename "${0}" ):${LINENO}: Already exist '${f}'" >&2
+    else
+        if ! mv "${f}" "${new_path}" ; then
+            failed+=("${new_path}")
+            echo "ERROR:$( basename "${0}" ):${LINENO}: Failed with '${f}'" >&2
+        fi
+    fi
+}
+
+if whiptail \
+            --yesno \
+            --defaultno \
+            --yes-button recursive \
+            --no-button "current only" \
+            --backtitle " naming normaliser" \
+            --title "QUESTION" \
+            "Do the search recursive?" \
+            "10" "50" 3>&1 1>&2 2>&3
+then
+    opt_maxdepth=""
+else
+    opt_maxdepth="-maxdepth 1"
+fi
+
+for t in VID IMG PANO ; do
+    while read f ; do
+        if [ -z "${f}" ] ; then continue ; fi
+        rename_it "${t}" "${f}" &
+    done <<< "$( find \
+                    "${dir_target}" \
+                    ${opt_maxdepth} \
+                    -name "${t}_*" )"
+done
+wait
+
+set +x
+echo "INFO:$( basename "${0}" ):${LINENO}: Job done." >&2
