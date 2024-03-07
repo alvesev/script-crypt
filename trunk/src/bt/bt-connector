@@ -178,8 +178,16 @@ elif [ "${op_name}" == "list-known" ] ; then  # List devices as they are known f
     exit
 elif [ "${op_name}" == "connect" ] ; then
     ask_for_bt_wake_up
-    bluetoothctl connect "${device_mac_pool[$d_name]}" \
-        || op_status=$?
+
+    for idx in $( seq 0 15 ) ; do
+        if bluetoothctl connect "${device_mac_pool[$d_name]}" ; then
+            op_status=0
+            break
+        else
+            op_status=1
+            sleep 0.5
+        fi
+    done
 elif [ "${op_name}" == "disconnect" ] ; then
     bluetoothctl disconnect "${device_mac_pool[$d_name]}" \
         || op_status=$?
