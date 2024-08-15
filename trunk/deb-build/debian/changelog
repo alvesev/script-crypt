@@ -1,3 +1,9 @@
+script-crypt (24) wilma; urgency=low
+
+  * Python 2 dependency was set to be 'Recommended'.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Thu, 19 Aug 2024 19:37:00 +0200
+
 script-crypt (23) vanessa; urgency=low
 
   * BT connect may now request radio on-off.
