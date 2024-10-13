@@ -30,6 +30,15 @@ b       Edit - Bless
 o       MC menu config - open with Geany
         nohup geany %f %t 1>/dev/null 2>/dev/null &
 
+# Geo data in GPX.
++= f \.[gG][pP][xX]$ & t r
+o       Viking - open as GPS geo-data file
+        nohup viking --map 13 %f %t 1>/dev/null 2>/dev/null &
+
+# Viking's geo data file.
++= f \.[vV][iI][kK]$ & t r
+o       Viking - open as GPS geo-data file
+        nohup viking %f %t 1>/dev/null 2>/dev/null &
 
 # CR Web Site have templates 'content_ru-RU_*' and 'stud_ru-RU'
 += f (^[cC][oO][nN][tT][eE][nN][tT]_..-.._|^[sS][tT][uU][dD]_..-..) & t r
@@ -44,7 +53,12 @@ o       Leafpad - open with
 o       MEdit - open with
         nohup medit %f %t 1>/dev/null 2>/dev/null &
 
-+= f (\.[hH][tT][mM][l]|\.[hH][tT][mM]|\.[xX][hH][tT][mM][l])$ & t r
++= f (\.[hH][tT][mM][lL]|\.[hH][tT][mM]|\.[xX][hH][tT][mM][lL])$ & t r
+o       Mozilla derivative - open with
+        CMD=/usr/bin/librewolf
+        nohup $CMD --private-window %f %t 1>/dev/null 2>/dev/null &
+
++= f (\.[hH][tT][mM][lL]|\.[hH][tT][mM]|\.[xX][hH][tT][mM][lL])$ & t r
 o       WWW browser - open with
         if which browser-current ; then
             CMD=`which browser-current`
@@ -54,13 +68,13 @@ o       WWW browser - open with
         echo "Using '${CMD}'." >&2
         nohup "${CMD}" %f %t 1>/dev/null 2>/dev/null &
 
-+= f (\.[hH][tT][mM][l]|\.[hH][tT][mM]|\.[xX][hH][tT][mM][l])$ & t r
++= f (\.[hH][tT][mM][lL]|\.[hH][tT][mM]|\.[xX][hH][tT][mM][lL])$ & t r
 o       SeaMonkey - open with
         CMD=/usr/bin/seamonkey
         nohup $CMD %f %t 1>/dev/null 2>/dev/null &
 
 += f (\.[jJ][sS][oO][nN]|\.[yY][aA][mM][lL]|\.[lL][iI][bB][sS][oO][nN][nN][eE][tT]|\.[jJ][sS][oO][nN][nN][eE][tT])$ & t r
-o       Chromium - open with
+o       Browser - open with
         CMD=/usr/bin/chromium-browser
         nohup $CMD %f %t 1>/dev/null 2>/dev/null &
 
@@ -74,15 +88,28 @@ o       Dia - open with
 
 += f (\.[xX][cC][fF]|\.[pP][cC][xX]|\.[gG][iI][fF]|\.[pP][nN][gG]|\.[jJ][pP][gG]|\.[jJ][pP][eE][gG]|\.[tT][iI][fF]|\.[tT][iI][fF][fF]|\.[bB][mM][pP])$ & t r
 o       Gimp - open with
-        nohup gimp %f %t 1>/dev/null 2>/dev/null &
+        if test -n "%t" ; then
+            nohup gimp %t 1>/dev/null 2>/dev/null &
+        else
+            nohup gimp %f 1>/dev/null 2>/dev/null &
+        fi
 
 += f \.[sS][vV][gG]$ & t r
 o       Inkscape - open with
         nohup inkscape %f %t 1>/dev/null 2>/dev/null &
 
+# Drawio diagram file
 += f \.[dD][rR][aA][wW][iI][oO]$ & t r
 o       Drawio - open with
-        nohup drawio %f %t 1>/dev/null 2>/dev/null &
+        if test -n "%t" ; then
+            for i in %t ; do
+                echo \'%d/${i}\'
+                nohup drawio "%d/${i}" 1>/dev/null 2>/dev/null &
+            done
+        else
+            echo \'%d/%f\'
+            nohup drawio %d/%f 1>/dev/null 2>/dev/null &
+        fi
 
 += f (\.[sS][lL][aA]|\.[sS][lL][aA]\.[gG][zZ])$ & t r
 o       Scribus - open with
@@ -150,6 +177,7 @@ o       FreeMind - open with
 += f \.([xX][zZ]|[tT][aA][rR]|[tT][aA][rR]\.7[zZ])$ & t r
 o       File-roller - open with
         nohup file-roller %f %t 1>/dev/null 2>/dev/null &
+
 += f \.[zZ][iI][pP]$ & t r
 o       Test Zip file integrity
         err_state=0
@@ -181,8 +209,8 @@ o       Test Zip file integrity
 o       Retext - open with
         nohup retext %f %t 1>/dev/null 2>/dev/null &
 += f \.([mM][dD])$ & t r
-o       Atom - open with
-        nohup atom %f %t 1>/dev/null 2>/dev/null &
+o       to HTML and open in browser
+        nohup md-to-browser %f %t 1>/dev/null 2>/dev/null &
 
 ------------------------------------------------------------
 + t t
@@ -226,21 +254,6 @@ c       no files selected for: compare files - Meld
         /bin/true
 
 + t t
-c       calculate MD5 checksum
-        CMD="/usr/bin/md5sum"
-        dirCurrentPanel="%d"
-        dirNeighbourPanel="%D"
-        for fName in %t ; do
-            "${CMD}" "${dirCurrentPanel}/${fName}"
-        done
-        for fName in %T ; do
-            "${CMD}" "${dirNeighbourPanel}/${fName}"
-        done
-+ ! t t
-c       no files selected for: calculate MD5 checksum
-        /bin/true
-
-+ t t
 d       compare directories
         dirCurrentPanel="%d"
         dirNeighbourPanel="%D"
@@ -259,6 +272,21 @@ d       compare directories
         bash -c "nohup /usr/share/smartsynchronize/bin/smartsynchronize.sh $cliArguments 2>/dev/null 1>/dev/null &"
 + ! t t
 d       no files selected for: compare directories
+        /bin/true
+
++ t t
+c       calculate MD5 checksum
+        CMD="/usr/bin/md5sum"
+        dirCurrentPanel="%d"
+        dirNeighbourPanel="%D"
+        for fName in %t ; do
+            "${CMD}" "${dirCurrentPanel}/${fName}"
+        done
+        for fName in %T ; do
+            "${CMD}" "${dirNeighbourPanel}/${fName}"
+        done
++ ! t t
+c       no files selected for: calculate MD5 checksum
         /bin/true
 
 + t t
@@ -375,7 +403,19 @@ P   Print selected names as single line and - into clipboard
         tar cf - "$Pwd" | 7za a -si "$tar.tar.7z" && \
         echo "../$tar.tar.7z created."
 
-6       Compress the current subdirectory (Zip)
+6       Compress the current subdirectory (tar.xz)
+        set -eu
+        donor=`basename %d /`
+        f_tar=$donor-`get-timestamp`
+        echo -n "Name of the compressed file (without extension) [$f_tar]: "
+        read tar
+        if [ "$tar"x = x ]; then tar="$f_tar"; fi
+        cd .. && \
+        tar cf - "$donor" | xz -6 --verbose > "$tar.tar.xz.partial" && \
+        mv "$tar.tar.xz.partial" "$tar.tar.xz" && \
+        echo "../$tar.tar.xz created."
+
+7       Compress the current subdirectory (Zip)
         f_out=`basename %d /`-`get-timestamp  --with-seconds`
         Pwd=`basename %d /`
         echo -n "Name of the compressed file (without extension) [$f_out]: "
@@ -461,6 +501,40 @@ Y       Gzip or gunzip selected files
           esac
           # --keep - Keep (don't delete) input files during compression or decompression.
           gzip $DECOMP --verbose --keep "${fName}"
+        done
+
++ ! t t
+x       XZ'ify single file
+        set -eu
+        donor=`basename %f`
+        acceptor=${donor}-`get-timestamp  --with-seconds`.tar.xz
+        if test -e "${acceptor}" ; then
+            echo -ne "\n\n"
+            read -p "Error: file '${acceptor}' already exist. Press 'Enter' key to continue." voidVar
+            exit 1
+        fi
+        dd bs=1 count=1 if="${donor}" of=/dev/null 2>/dev/null \
+            || read -p "Can't read from '${donor}'. Press 'Enter' key to continue." voidVar
+        tar cf - "${donor}" | xz -6 --verbose > "${acceptor}.partial" \
+            && mv "${acceptor}.partial" "${acceptor}" \
+            && echo "'${acceptor}' has been created."
+
++ t t
+x       XZ'ify all selected files (one XZ per file)
+        set -eu
+        for fName in %t ; do
+            donor=`basename "${fName}"`
+            acceptor=${donor}-`get-timestamp  --with-seconds`.tar.xz
+            if test -e "${acceptor}" ; then
+                echo -ne "\n\n"
+                read -p "Error: file '${acceptor}' already exist. Press 'Enter' key to continue." voidVar
+                exit 1
+            fi
+            dd bs=1 count=1 if="${donor}" of=/dev/null 2>/dev/null \
+                || read -p "Can't read from '${donor}'. Press 'Enter' key to continue." voidVar
+            cd %d \
+                && tar cf - "${donor}" | xz -6 --verbose > "${acceptor}" \
+                && echo "'${acceptor}' has been created."
         done
 
 + ! t t
