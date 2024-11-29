@@ -123,6 +123,11 @@ while [ ${#} -gt 0 ] ; do
             fi
             break
             ;;
+        --reload)   # Reload Bluetooth. Need 'root' for this.
+            if [ ! -v op_name ] ; then
+                declare -r op_name="reload-bluetooth"
+            fi
+            ;;
         --verbose)  # Enable debugging output in script.
             true
         ;;
@@ -149,9 +154,17 @@ if [ "${op_name:-switch_state}" == "switch_state" ] ; then
     esac
 elif [ "${op_name}" == "show_state" ] ; then
     echo "${bt_state_soft_trigger}"
+elif [ "${op_name}" == "reload-bluetooth" ] ; then
+    if [ "${UID}" == "0" ] ; then
+        modprobe -r btusb
+        modprobe btusb
+        rfkill unblock bluetooth
+        systemctl restart bluetooth
+    else
+        echo "ERROR:$( basename "${0}" ):${LINENO}: Need to be 'root' when used '${arg_name}'." >&2
+        exit 1
+    fi
 fi
-
 
 set +x
 echo "INFO:${0}:${LINENO}: Job done." >&2
-echo ""
