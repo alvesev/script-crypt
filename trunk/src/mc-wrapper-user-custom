@@ -23,7 +23,7 @@ while [ ${#} -ne 0 ] ; do
     shift
 done
 
-/usr/bin/mc -a --skin="${fileWithSkin}" --oldmouse -P "${fileWithLastMCPanelPath}" "${@}" "$( pwd )" "$( pwd )"
+/usr/bin/mc --skin="${fileWithSkin}" --oldmouse -P "${fileWithLastMCPanelPath}" "${@}" "$( pwd )" "$( pwd )"
 
 if [ -r "${fileWithLastMCPanelPath}" ] ; then
     lastMCPanelPath="$( cat "${fileWithLastMCPanelPath}" )"
