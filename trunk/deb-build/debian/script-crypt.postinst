@@ -22,5 +22,12 @@
 
 
 PS4="+:\${0}:\${LINENO}: "
-set -x
-set -e
+set -eu
+
+if [ ! -f /etc/bt-connector/conf.json ] ; then
+    echo "Creating default '/etc/bt-connector/conf.json'."
+    mkdir -p /etc/bt-connector
+    echo '{"device":{"no-name":"00:11:22:aa:bb:cc"}}' \
+        > /etc/bt-connector/conf.json
+fi
+
