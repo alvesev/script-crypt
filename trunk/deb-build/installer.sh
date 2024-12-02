@@ -46,6 +46,7 @@ test -d "${CHROOT}/${home_skeleton_root}"     || install --directory --owner=roo
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/ConfFileSetGet.py"                "${CHROOT}/usr/bin/conf-file-get-set"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/TooLongNames.py"                  "${CHROOT}/usr/bin/too-long-names"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/rename-APK-by-versions.sh"        "${CHROOT}/usr/bin/rename-apk-by-versions"
+install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/camera-files-naming"              "${CHROOT}/usr/bin/camera-files-naming"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/upgrade-ubu.py"                   "${CHROOT}/usr/bin/upgrade-ubu"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/if-speed"                         "${CHROOT}/usr/bin/if-speed"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/force-home-dir-files.sh"          "${CHROOT}/usr/bin/force-home-dir-files"

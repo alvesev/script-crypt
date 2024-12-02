@@ -6,12 +6,44 @@ if [[ "${*}" =~ --verbose ]] ; then set -x ; fi
 
 declare -r dir_target="${1?Target directory not specified at CLI.}"
 
-declare -rA types=(
+declare -r  f_this="${0##*/}"
+declare -r  f_cnf="${HOME}/.config/script-crypt/${f_this%\.sh}.conf"
+
+declare -rA types_default=(
                 ["VID"]="video"
                 ["IMG"]="photo"
-                ["PXL"]="photo"
-                ["PANO"]="photo-pano"
                 )
+
+if [ ! -f "${f_cnf}" ] ; then
+    mkdir -p "$( dirname "${f_cnf}" )"
+    dict="\"types\": {"
+    for k in "${!types_default[@]}" ; do
+        dict+="\"$k\": \"${types_default[$k]}\", "
+    done
+    if [ "${dict: -2:2}" == ", " ] ; then  # If the dict was ever not empty.
+        dict="${dict::-2}"  # Remove last coma to have correct JSON syntax.
+    fi
+    dict+="}"
+    json="{${dict}}"
+    echo "${json}" | jq --indent 4 . > "${f_cnf}"
+fi
+
+jq --indent 4 . "${f_cnf}" 1>/dev/null
+json="$( jq --indent 4 . "${f_cnf}" )"
+declare -A types=()
+while read k v ; do
+    types["${k}"]="${v}"
+done < <( jq -r '
+                .types |
+                to_entries |
+                map("\(.key) \(.value)") |
+                .[] |
+                "" + . + ""
+            ' "${f_cnf}" )
+
+###
+##
+#
 
 function rename_it {
     local -r token="${1}"
