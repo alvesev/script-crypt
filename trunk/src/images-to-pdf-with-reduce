@@ -1,0 +1,195 @@
+#!/bin/bash
+#
+#  Copyright 2007-2024 Alex Vesev
+#
+#  This file is part of Script Crypt.
+#
+#  Script Crypt is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Script Crypt is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Script Crypt. If not, see <https://www.gnu.org/licenses/>.
+#
+##
+
+file_order_short="images-order.txt"
+f_prefix_short="name-prefix.txt"
+help_text="Put images files names into text file '${file_order_short}' in the directory with images, one name per line. Put output-file name prefix into file '${f_prefix_short}'."
+if [[ "${*}" =~ --help ]] || [ "${#}" == "0" ] ; then
+    echo "${help_text}"
+    cat "${0}" | egrep "^[[:space:]]{1,}(-[a-zA-Z]{1,}|--[a-zA-Z\|\-]{1,}))"
+    exit
+fi
+
+PS4="+:${0}:\${LINENO}: "
+set -eu
+if [[ "${*}" =~ --verbose ]] ; then set -x ; fi
+
+###
+##
+#
+
+f_prefix="$( pwd )/${f_prefix_short}"
+if [ -e "${f_prefix}" ] ; then
+    while read s ; do
+        declare -r prefix="${s}"
+        break  # Take first line only.
+    done < <( cat "${f_prefix}" )
+else
+    declare -r  prefix="image"
+fi
+
+###
+##
+#
+
+f_order_full="$( pwd )/${file_order_short}"
+declare -a images_order=()
+if [ -e "${f_order_full}" ] ; then
+    while read f ; do
+        if [ -n "${f}" ] ; then
+            images_order+=("${f}")
+        fi
+    done < <( cat "${f_order_full}" )
+else
+    meta_data="WARNING:$( basename "${0}" ):${LINENO}:"
+    message="File with images order '${f_order_full}' was not found. ${help_text}"
+    echo "${meta_data} ${message}" >&2
+    if ! whiptail                                   \
+            --yesno                                 \
+            --yes-button "continue"                 \
+            --no-button "exit"                      \
+            --backtitle "${meta_data}"              \
+            --title " ${meta_data} " "${message}"   \
+            20 70                                   \
+            3>&1 1>&2 2>&3
+    then
+        exit 1
+    fi
+    declare -ra images_order=(
+                            'scan-01.jpeg'
+                            'scan-02.jpeg'
+                            'scan-03.jpeg'
+                            )
+fi
+
+###
+##
+#
+
+declare -r  suffix_for_full_size="${images_order[0]##*\.}"
+if [ -z "${suffix_for_full_size}" ] ; then
+    set +x
+    echo "ERROR:${0}:${LINENO}: Failed to get file name extension from name '${images_order[0]}'." >&2
+    exit 1
+fi
+
+declare -r  suffix_for_small="reduced.jpg"
+declare -r  f_pdf_out="${prefix}.pdf"
+
+
+declare -A map_scanner_to_desired=()
+declare -i idx=1
+for f in "${images_order[@]}" ; do
+    map_scanner_to_desired["${f}"]="${prefix}_list-$( printf "%02d\n" ${idx} ).${suffix_for_full_size}"
+    idx+=1
+done
+
+
+###
+##
+#
+
+#for f in "${map_scanner_to_desired[@]}" ; do
+#    if [ ! -e "${f}" ] ; then
+#        set +x
+#        echo "ERROR:${0}:${LINENO}: File '${f}' was not found." >&2
+#        exit 1
+#    fi
+#done
+
+while [ "${#}" != 0 ] ; do
+    arg_name="${1%%=*}"
+    arg_value="${1#*=}"
+    case "${arg_name}" in
+    --jpeg-quality|-q)  # JPEG quality above 0, below 100. '0' is undocumented in 'man convert'.
+        declare -r jpeg_quality="${arg_value}"
+        ;;
+    --verbose|--help)   # Other options.
+        true
+        ;;
+    *)
+        set +x
+        echo "ERROR:${0}:${LINENO}: Unknown argument '${arg_name}'." >&2
+        exit 1
+    esac
+    shift
+done
+
+if [ -z "${jpeg_quality:-}" ] ; then
+    set +x
+    echo "ERROR:${0}:${LINENO}: JPEG quality is not set at CLI." >&2
+    exit 1
+fi
+
+test -n "${prefix}"
+test -n "${suffix_for_full_size}"
+test -n "${suffix_for_small}"
+
+###
+##
+#
+
+for f in "${!map_scanner_to_desired[@]}" ; do
+    if [ ! -e "${map_scanner_to_desired[$f]}" ] ; then
+        test -f "${f}" && mv "${f}" "${map_scanner_to_desired[$f]}"
+    fi
+done
+
+function reduce_img {
+    set -eu
+    f_in="${1}"
+    f_out="${2}"
+    trap "echo ERROR:${0}:${LINENO}: Fail while processing of '${f_in}'. >&2" ERR
+    echo "INFO:${0}:${LINENO}: Processing in background '${f_in}'..." >&2
+    convert -quality "${jpeg_quality}" "${f_in}" "${f_out}"
+    sync "${f_out}"
+    echo "INFO:${0}:${LINENO}: Converted $( du -hs "${f_in}" | tr -d '\n' )  ->  $( du -hs "${f_out}" | tr -d '\n' )." >&2
+}
+
+declare -a childs=()
+for f in "${map_scanner_to_desired[@]}" ; do
+    reduce_img "${f}" "${f/.$suffix_for_full_size}.${suffix_for_small}" &
+    childs+=("${!}")
+done
+error_level=0
+for pid in "${childs[@]}" ; do
+    if ! wait "${pid}" ; then
+        #echo "ERROR:${0}:${LINENO}: Had fail." >&2
+        error_level=1
+    fi
+done
+wait
+[ "${error_level}" == "0" ] || exit 1
+
+##
+#   In order to make it works do (security breach, https://bugs.archlinux.org/task/60580):
+#       $ grep -rn '<policy' /etc | g -i pdf
+#       /etc/ImageMagick-6/policy.xml:66:  <policy domain="resource" name="disk" value="16GiB"/>
+#       /etc/ImageMagick-6/policy.xml:72:  <!-- <policy domain="module" rights="none" pattern="{PS,PDF,XPS}" /> -->
+#       /etc/ImageMagick-6/policy.xml:94:  <!-- <policy domain="coder" rights="none" pattern="PDF" /> -->
+
+echo "INFO:${0}:${LINENO}: Creating PDF..." >&2
+convert $( ls -v "${prefix}"*".${suffix_for_small}" ) "pdf:${f_pdf_out}"
+rm -f "${prefix}"*".${suffix_for_small}"
+
+set +x
+echo "INFO:${0}:${LINENO}: PDF size is $( du -hs "${f_pdf_out}" | awk '{print $1}' )." >&2
+echo "INFO:${0}:${LINENO}: Job done." >&2

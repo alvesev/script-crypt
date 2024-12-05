@@ -1,0 +1,97 @@
+#!/bin/bash
+#
+#  Copyright 2007-2024 Alex Vesev
+#
+#  This file is part of Script Crypt.
+#
+#  Script Crypt is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Script Crypt is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Script Crypt. If not, see <https://www.gnu.org/licenses/>.
+#
+##
+
+if [[ "${*}" =~ --help ]] || [ "${#}" == "0" ] ; then
+    cat "${0}" | egrep "^[[:space:]]{1,}(-[a-zA-Z]{1,}|--[a-zA-Z\|\-]{1,}))"
+fi
+
+PS4="+:${0}:\${LINENO}: "
+set -eu
+if [[ "${*}" =~ --verbose ]] ; then set -x ; fi
+
+##
+#   In order to make it works do (security breach, https://bugs.archlinux.org/task/60580):
+#       $ grep -rn '<policy' /etc | g -i pdf
+#       /etc/ImageMagick-6/policy.xml:72:  <!-- <policy domain="module" rights="none" pattern="{PS,PDF,XPS}" /> -->
+#       /etc/ImageMagick-6/policy.xml:94:  <!-- <policy domain="coder" rights="none" pattern="PDF" /> -->
+
+declare -r d_obsolete="originals"
+
+while [ "${#}" != 0 ] ; do
+    arg_name="${1%%=*}"
+    arg_value="${1#*=}"
+    case "${arg_name}" in
+    --jpeg-quality|-q)  # JPEG quality above 0(?), below 100.
+        declare -r jpeg_quality="${arg_value}"
+        ;;
+    --verbose|--help)   # Other options.
+        true
+        ;;
+    *)
+        set +x
+        echo "ERROR:${0}:${LINENO}: Unknown argument '${arg_name}'." >&2
+        exit 1
+    esac
+    shift
+done
+
+if [ -z "${jpeg_quality:-}" ] ; then
+    set +x
+    echo "ERROR:${0}:${LINENO}: JPEG quality is not set at CLI." >&2
+    exit 1
+fi
+
+if ! test -d "${d_obsolete}" ; then
+    mkdir "${d_obsolete}"
+fi
+
+declare -a names_found=()
+while read f ; do
+    if [ -z "${f}" ] ; then break ; fi
+    names_found+=("${f}")
+done < <( find -mindepth 1 -maxdepth 1 -type f -iname "*.png" )
+
+function reduce_img {
+    set -eu
+    local item_num="${1}"
+    echo "INFO:${0}:${LINENO}: Processing '${item_num}' from '${#names_found[@]}'." >&2
+    f_out="${f%.png}.jpeg"
+    convert "${f}" "jpeg:${f_out}"
+    convert -quality "${jpeg_quality}" "${f}" "${f_out}"
+    echo "INFO:${0}:${LINENO}: Converted: '$( du -hs "${f}" | tr -d '\n' )' -> '$( du -hs "${f_out}" | tr -d '\n' )'." >&2
+}
+
+declare -i idx=0
+for f in "${names_found[@]}" ; do
+    idx+=1
+    reduce_img "${idx}" &
+done
+wait
+
+for f in "${names_found[@]}" ; do
+    d="${d_obsolete}/$( dirname "${f}" )"
+    if [ ! -d "${d}" ] ; then
+        mkdir -p "${d}"
+    fi
+    mv -v "${f}" "${d}/"
+done
+
+true : Job done. >&2
