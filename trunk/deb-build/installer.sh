@@ -69,6 +69,8 @@ install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/bt/bt-conn
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/ap-wake-up"                       "${CHROOT}/usr/bin/ap-wake-up"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/refresh-known-test-nodes"         "${CHROOT}/usr/bin/refresh-known-test-nodes"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/net-reset"                        "${CHROOT}/usr/bin/net-reset"
+install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/images-to-pdf-with-reduce"        "${CHROOT}/usr/bin/images-to-pdf-with-reduce"
+install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/reduce-image"                     "${CHROOT}/usr/bin/reduce-image"
 
 ln -s "/etc/init.d/sys-suspend-on-lid" "${CHROOT}/etc/rc3.d/S07sys-suspend-on-lid"
 
