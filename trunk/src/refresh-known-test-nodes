@@ -51,7 +51,7 @@ echo "INFO:$( basename "${0}" ):${LINENO}: Using configuration file '${f_cnf}'."
 
 declare -t timeout_conn="5"  # In seconds.
 
-declare -r d_tmp="$( mktemp --directory --tmpdir="/dev/shm" "$( basename "${0}" ).$$.XXXX.log" )"
+declare -r d_tmp="$( mktemp --directory --tmpdir="/dev/shm" "$( basename "${0}" ).$$.XXXX" )"
 declare -r file_err_log="${d_tmp}/error.log"
 declare -r file_targets="${d_tmp}/targets.txt"
 trap "rm -rf '${d_tmp}'"  EXIT QUIT TERM ABRT INT  # KILL and STOP can't be intercepted.
@@ -76,7 +76,7 @@ function check_availability {
             fi
         done <<< "$( cat /etc/hosts \
                             | grep -Ev '^[[:space:]]{0,}#' \
-                            | grep -E "${hst}" \
+                            | grep -E "[[:space:]]{1,}${hst}([[:space:]]{1,}|$)" \
                             | awk '{print $1}' \
                             | sort \
                             | uniq )"
@@ -105,6 +105,7 @@ function produce_targets_list {
 function scan_host {
     local -r hst="${1}"
     local -r prt="${2}"
+    local -r f_out="${d_tmp}/$( echo "${hst}:${prt}" | sha256sum | awk '{print $1}' ).keys"
     #local    exit_code=0
 
     trap "echo ERROR:$( basename "${0}" ):${LINENO}: Smth. failed during scan of '${host}:${port}'. " >&2 ERR
@@ -112,7 +113,7 @@ function scan_host {
     if timeout 0.4 ssh-keyscan \
                     -T "${timeout_conn}" \
                     -p "${prt}" -H "${hst}" \
-                        >> "${d_tmp}/$( sha256sum | awk '{print $1}' ).keys" \
+                        >> "${f_out}" \
                         2>/dev/null
     then
         true : "${hst}:${prt}" has been scanned. >&2
@@ -121,15 +122,15 @@ function scan_host {
         echo "${message}" >> "${file_err_log}"
         #exit_code=1
     fi
-    return 0  # Errors are collected. No stop on error.
+    return 0
 }
 
-function reload_host {
+function remove_host {
     local -r hst="${1}"
     local -r prt="${2}"
     #local    exit_code=0
 
-    trap "echo ERROR:$( basename "${0}" ):${LINENO}: Smth. failed during reload of '${host}:${port}'. " >&2 ERR
+    trap "echo ERROR:$( basename "${0}" ):${LINENO}: Smth. failed during remove of '${host}:${port}'. " >&2 ERR
 
     #   Address specification example: [127.0.0.1]:12345
     #   Removal will lead to race for '~/.ssh/known_hosts' in case of concurrency.
@@ -145,17 +146,14 @@ function reload_host {
         echo "${message}" >> "${file_err_log}"
         #exit_code=1
     fi
-
-    while read f ; do
-        cat "${f}" >> "${HOME}/.ssh/known_hosts"
-    done < <( find "${d_tmp}" -type f -name "*.keys" )
-
-    return 0  # Errors are collected. No stop on error.
+    return 0
 }
 
 ###
 ##
 #
+
+touch "${file_err_log}"
 
 if ! test -f "${f_cnf}" ; then
     echo "ERROR:$( basename "${0}" ):${LINENO}: Configuration file '${f_cnf}' is missed." >&2
@@ -195,10 +193,13 @@ wait
 sync "${d_tmp}"
 while read marker host port ; do
     if [ -n "${host}" ] && [ -n "${port}" ] ; then
-        reload_host "${host}" "${port}"
+        remove_host "${host}" "${port}"
     fi
 done < "${file_targets}"
-
+while read f ; do
+    cat "${f}" >> "${HOME}/.ssh/known_hosts"
+    sync "${HOME}/.ssh/known_hosts"
+done < <( find "${d_tmp}" -type f -name "*.keys" )
 
 if [ "$( stat -c '%s' "${file_err_log}" )" == "0" ] ; then
     set +x
