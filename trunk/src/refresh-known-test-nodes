@@ -53,7 +53,7 @@ declare -t timeout_conn="5"  # In seconds.
 
 declare -r d_tmp="$( mktemp --directory --tmpdir="/dev/shm" "$( basename "${0}" ).$$.XXXX" )"
 declare -r file_err_log="${d_tmp}/error.log"
-declare -r file_targets="${d_tmp}/targets.txt"
+declare -r d_targets="${d_tmp}/targets"
 trap "rm -rf '${d_tmp}'"  EXIT QUIT TERM ABRT INT  # KILL and STOP can't be intercepted.
 
 
@@ -62,17 +62,19 @@ trap "rm -rf '${d_tmp}'"  EXIT QUIT TERM ABRT INT  # KILL and STOP can't be inte
 #
 
 
-function check_availability {
+function filter_availables {
     local hst="${1}"
     local prt="${2}"
+    local dir_out="${3}"
+    local f_out="${dir_out}/$( echo "${hst}:${prt}" | sha256sum | awk '{print $1}' ).targets"
 
     # Unreachable targets should not be reported.
-    if timeout 0.2 nc -vz -w 1 "${hst}" "${prt}" 1>/dev/null 2>/dev/null
+    if timeout 1 nc -vz -w 1 "${hst}" "${prt}" 1>/dev/null 2>/dev/null
     then
-        echo "processing_target ${hst} ${prt}"
+        echo "processing_target ${hst} ${prt}" > "${f_out}"
         while read ip ; do
             if [ -n "${ip}" ] ; then
-                echo "processing_target ${ip} ${prt}"
+                echo "processing_target ${ip} ${prt}" >> "${f_out}"
             fi
         done <<< "$( cat /etc/hosts \
                             | grep -Ev '^[[:space:]]{0,}#' \
@@ -80,18 +82,25 @@ function check_availability {
                             | awk '{print $1}' \
                             | sort \
                             | uniq )"
+
     else
         echo "WARNING:$( basename "${0}" ):${LINENO}: '${hst}:${prt}' is unreachable and is sckipped." >&2
     fi
 }
 
 function produce_targets_list {
+
+    # TODO - Split targets lists by hostname only, instead of hostname+port.
+
+    local -r d_out="${1}"
     local hst
     local prt
 
+    mkdir -p "${d_targets}"
+
     while read hst prt ; do
         if [ -n "${hst}" ] && [ -n "${prt}" ] ; then
-            check_availability "${hst}" "${prt}" &
+            filter_availables "${hst}" "${prt}" "${d_out}" &
         fi
     done <<< "$( jq \
                         -r \
@@ -102,15 +111,32 @@ function produce_targets_list {
     wait
 }
 
+function scan_targets {
+    local -r f_in="${1}"
+    local -r f_out="${f_in}.keys"
+    while read marker host port ; do
+        if [ -n "${host}" ] && [ -n "${port}" ] ; then
+            scan_host "${host}" "${port}" "${f_out}"
+            sleep 0.5  # Server does not answer reliably under a load.
+        fi
+    done < "${f_in}"
+}
+
 function scan_host {
+    # OpenSSH server may not return all keys upon
+    # 'ssh-keyscan -p ... -H ...' if the requests are performed at high
+    # frequency. That's why requests by IP address and by host name of
+    # that IP in parallel are not reliable. It's better to make
+    # sequential requests to a same server.
+
     local -r hst="${1}"
     local -r prt="${2}"
-    local -r f_out="${d_tmp}/$( echo "${hst}:${prt}" | sha256sum | awk '{print $1}' ).keys"
+    local -r f_out="${3}"
     #local    exit_code=0
 
     trap "echo ERROR:$( basename "${0}" ):${LINENO}: Smth. failed during scan of '${host}:${port}'. " >&2 ERR
 
-    if timeout 0.4 ssh-keyscan \
+    if timeout 2 ssh-keyscan \
                     -T "${timeout_conn}" \
                     -p "${prt}" -H "${hst}" \
                         >> "${f_out}" \
@@ -132,8 +158,8 @@ function remove_host {
 
     trap "echo ERROR:$( basename "${0}" ):${LINENO}: Smth. failed during remove of '${host}:${port}'. " >&2 ERR
 
-    #   Address specification example: [127.0.0.1]:12345
-    #   Removal will lead to race for '~/.ssh/known_hosts' in case of concurrency.
+    # Address specification example: [127.0.0.1]:12345
+    # Removal will lead to race for '~/.ssh/known_hosts' in case of concurrency.
     if ssh-keygen \
         -f "${HOME}/.ssh/known_hosts" \
         -R "${hst}" \
@@ -179,27 +205,25 @@ Configuration file example:
     exit 1
 fi
 
-produce_targets_list \
-                | grep processing_target \
-                | sort \
-                | uniq \
-    > "${file_targets}"
-while read marker host port ; do
-    if [ -n "${host}" ] && [ -n "${port}" ] ; then
-        scan_host "${host}" "${port}" &
-    fi
-done < "${file_targets}"
+produce_targets_list "${d_targets}"
+
+while read f_target ; do
+    scan_targets "${f_target}" &
+done < <( find "${d_targets}" -type f -name "*.targets" )
 wait
-sync "${d_tmp}"
+sync "${d_targets}"
+
 while read marker host port ; do
     if [ -n "${host}" ] && [ -n "${port}" ] ; then
         remove_host "${host}" "${port}"
     fi
-done < "${file_targets}"
+done < <( find "${d_targets}" -type f -name "*.targets" )
+sync "${d_targets}"
+
 while read f ; do
     cat "${f}" >> "${HOME}/.ssh/known_hosts"
     sync "${HOME}/.ssh/known_hosts"
-done < <( find "${d_tmp}" -type f -name "*.keys" )
+done < <( find "${d_targets}" -type f -name "*.keys" )
 
 if [ "$( stat -c '%s' "${file_err_log}" )" == "0" ] ; then
     set +x
