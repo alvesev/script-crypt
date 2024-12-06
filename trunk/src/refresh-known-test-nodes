@@ -51,9 +51,10 @@ echo "INFO:$( basename "${0}" ):${LINENO}: Using configuration file '${f_cnf}'."
 
 declare -t timeout_conn="5"  # In seconds.
 
-file_err_log="$( mktemp --tmpdir="/dev/shm" "$( basename "${0}" ).$$.XXXX.log" )"
-declare -r file_err_log
-trap "rm -rf '${file_err_log}'"  EXIT QUIT TERM ABRT INT  # KILL and STOP can't be intercepted.
+declare -r d_tmp="$( mktemp --directory --tmpdir="/dev/shm" "$( basename "${0}" ).$$.XXXX.log" )"
+declare -r file_err_log="${d_tmp}/error.log"
+declare -r file_targets="${d_tmp}/targets.txt"
+trap "rm -rf '${d_tmp}'"  EXIT QUIT TERM ABRT INT  # KILL and STOP can't be intercepted.
 
 
 ###
@@ -80,7 +81,7 @@ function check_availability {
                             | sort \
                             | uniq )"
     else
-        echo "WARNING:$( basename "${0}" ):${LINENO}: '${hst}:${prt}' is unreachable." >&2
+        echo "WARNING:$( basename "${0}" ):${LINENO}: '${hst}:${prt}' is unreachable and is sckipped." >&2
     fi
 }
 
@@ -101,6 +102,28 @@ function produce_targets_list {
     wait
 }
 
+function scan_host {
+    local -r hst="${1}"
+    local -r prt="${2}"
+    #local    exit_code=0
+
+    trap "echo ERROR:$( basename "${0}" ):${LINENO}: Smth. failed during scan of '${host}:${port}'. " >&2 ERR
+
+    if timeout 0.4 ssh-keyscan \
+                    -T "${timeout_conn}" \
+                    -p "${prt}" -H "${hst}" \
+                        >> "${d_tmp}/$( sha256sum | awk '{print $1}' ).keys" \
+                        2>/dev/null
+    then
+        true : "${hst}:${prt}" has been scanned. >&2
+    else
+        message="ERROR:$( basename "${0}" ):${LINENO}: Failed to scan '${hst}:${prt}'."
+        echo "${message}" >> "${file_err_log}"
+        #exit_code=1
+    fi
+    return 0  # Errors are collected. No stop on error.
+}
+
 function reload_host {
     local -r hst="${1}"
     local -r prt="${2}"
@@ -109,30 +132,24 @@ function reload_host {
     trap "echo ERROR:$( basename "${0}" ):${LINENO}: Smth. failed during reload of '${host}:${port}'. " >&2 ERR
 
     #   Address specification example: [127.0.0.1]:12345
+    #   Removal will lead to race for '~/.ssh/known_hosts' in case of concurrency.
     if ssh-keygen \
         -f "${HOME}/.ssh/known_hosts" \
         -R "${hst}" \
             1>/dev/null \
             2>/dev/null
     then
-        true #echo "INFO:$( basename "${0}" ):${LINENO}: '${hst}:${prt}' - removed." >&2
+        true : "${hst}:${prt}" has been removed. >&2
     else
         message="ERROR:$( basename "${0}" ):${LINENO}: Failed to remove '${hst}:${prt}' from known hosts."
         echo "${message}" >> "${file_err_log}"
         #exit_code=1
     fi
-    if timeout 0.4 ssh-keyscan \
-                    -T "${timeout_conn}" \
-                    -p "${prt}" -H "${hst}" \
-                        >> "${HOME}/.ssh/known_hosts" \
-                        2>/dev/null
-    then
-        true #echo "INFO:$( basename "${0}" ):${LINENO}: '${hst}:${prt}' - added." >&2
-    else
-        message="ERROR:$( basename "${0}" ):${LINENO}: Failed to add '${hst}:${prt}'."
-        echo "${message}" >> "${file_err_log}"
-        #exit_code=1
-    fi
+
+    while read f ; do
+        cat "${f}" >> "${HOME}/.ssh/known_hosts"
+    done < <( find "${d_tmp}" -type f -name "*.keys" )
+
     return 0  # Errors are collected. No stop on error.
 }
 
@@ -164,15 +181,24 @@ Configuration file example:
     exit 1
 fi
 
-while read marker host port ; do
-    if [ -n "${host}" ] && [ -n "${port}" ] ; then
-        reload_host "${host}" "${port}" &
-    fi
-done <<< "$( produce_targets_list \
+produce_targets_list \
                 | grep processing_target \
                 | sort \
-                | uniq )"
+                | uniq \
+    > "${file_targets}"
+while read marker host port ; do
+    if [ -n "${host}" ] && [ -n "${port}" ] ; then
+        scan_host "${host}" "${port}" &
+    fi
+done < "${file_targets}"
 wait
+sync "${d_tmp}"
+while read marker host port ; do
+    if [ -n "${host}" ] && [ -n "${port}" ] ; then
+        reload_host "${host}" "${port}"
+    fi
+done < "${file_targets}"
+
 
 if [ "$( stat -c '%s' "${file_err_log}" )" == "0" ] ; then
     set +x
