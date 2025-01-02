@@ -46,3 +46,4 @@ alias g-catch-router-l2tp-only="egrep 'L2TP'"
 
 alias makepasswd-from-str="makepasswd --string '$( echo {a..z} {A..Z} {0..9} '-=~!@#$%^&*()_+[]{}|;:,.<>?' | tr --delete ' ' )'"
 
+alias rc="reset ; clear"  # Also 'rc' is implementation of the AT&T Plan 9 shell - 'apt-cache show rc'.
