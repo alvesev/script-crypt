@@ -72,6 +72,7 @@ install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/net-reset"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/images-to-pdf-with-reduce"        "${CHROOT}/usr/bin/images-to-pdf-with-reduce"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/reduce-image"                     "${CHROOT}/usr/bin/reduce-image"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/umount-parent"                    "${CHROOT}/usr/bin/umount-parent"
+install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/git-clone-into-path"              "${CHROOT}/usr/bin/git-clone-into-path"
 
 ln -s "/etc/init.d/sys-suspend-on-lid" "${CHROOT}/etc/rc3.d/S07sys-suspend-on-lid"
 
