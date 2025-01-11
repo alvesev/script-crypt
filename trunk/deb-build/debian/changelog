@@ -1,16 +1,25 @@
+script-crypt (26) wilma; urgency=low
+
+  * Photocamera files renamer and aligner.
+  * Scanned images processing helpers.
+  * Parent directory u-mounter.
+  * Git clone into path by URL.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Sat, 11 Jan 2025 20:20:00 +0100
+
 script-crypt (25) wilma; urgency=low
 
   * Bluetooth reload for particular OS distributions.
   * System wide Bluetooth switcher configuration installation workflow.
   * Usage of graphic characters for line drawing enabled in MC wrappers.
 
- -- Alex Vesev <alex.vesev@gmail.com>  Thu, 29 Nov 2024 19:16:00 +0100
+ -- Alex Vesev <alex.vesev@gmail.com>  Fri, 29 Nov 2024 19:16:00 +0100
 
 script-crypt (24) wilma; urgency=low
 
   * Python 2 dependency was set to be 'Recommended'.
 
- -- Alex Vesev <alex.vesev@gmail.com>  Thu, 19 Aug 2024 19:37:00 +0200
+ -- Alex Vesev <alex.vesev@gmail.com>  Mon, 19 Aug 2024 19:37:00 +0200
 
 script-crypt (23) vanessa; urgency=low
 
