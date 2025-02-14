@@ -1,0 +1,113 @@
+#!/bin/bash
+#
+#  Copyright 2007-2025 Alex Vesev
+#
+#  This file is part of Script Crypt.
+#
+#  Script Crypt is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Script Crypt is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Script Crypt. If not, see <https://www.gnu.org/licenses/>.
+#
+##
+
+if [[ "${*}" =~ (^|[[:space:]])(--help|-h)([[:space:]]|$) ]] || [ "${#}" == "0" ] ; then
+    cat "${0}"
+    exit
+fi
+
+PS4="+:${0}:\${LINENO}: "
+set -eu
+if [[ "${*}" =~ --verbose ]] ; then set -x ; fi
+
+# # #
+# #
+#
+
+function test_calculation {
+
+    # Play a role in case of integer arithmetic.
+
+    w="$( bc <<< "scale=0 ; (${w_px})  / (${dpi_x})" )"
+    h="$( bc <<< "scale=0 ; (${h_px}) /  (${dpi_y})" )"
+    target_w="$( bc <<< "scale=0 ; (${target_w_px})  / (${target_dpi_x})" )"
+    target_h="$( bc <<< "scale=0 ; (${target_h_px}) /  (${target_dpi_y})" )"
+
+    delta_x="$(( ${w} - ${target_w} ))"
+    delta_y="$(( ${h} - ${target_h} ))"
+
+    if [ "${delta_x}" -lt -1 ] || [ "${delta_x}" -gt 1 ] \
+        || [ "${delta_y}" -lt -1 ] || [ "${delta_y}" -gt 1 ]
+    then
+        set +x
+        echo "ERROR:${0}:${LINENO}: Size calculation mismatch for '${f_in}'. [${w}->${target_w},${h}->${target_h}]" >&2
+        exit 1
+    fi
+    if [ "${delta_x}" != 0 ] || [ "${delta_y}" != 0 ]
+    then
+        echo "WARNING:${0}:${LINENO}: Size calculation mismatch for '${f_in}'. [${w}->${target_w},${h}->${target_h}]" >&2
+    fi
+}
+
+# # #
+# #
+#
+
+k="${1?Scale coefficient not set.}"
+
+f_in="${2?Input file path not set at CLI.}"
+f_out="${3?Output file path not set at CLI.}"
+f_out_tmp="/dev/shm/$( basename "${f_out}" )"
+
+#if [ "$( bc <<< "${k} >= 0 && ${k} <= 1" )" != 1 ] ; then
+#    set +x
+#    echo "ERROR:${0}:${LINENO}: Coefficient should be: 0 < k < 1." >&2
+#    exit 1
+#fi
+
+read w_px h_px dpi_x dpi_y other <<< "$( identify -units PixelsPerInch -format "%w %h %x %y\n" "${f_in}" )"
+
+if [ "${dpi_x}" != "${dpi_y}" ] ; then
+    set +x
+    echo "ERROR:${0}:${LINENO}: There are different pixel densities for X and Y axis in '${f_in}'." >&2
+    exit 1
+fi
+
+## Integer calculations.
+#target_w_px="$( bc <<< "scale=0 ; ( ${w_px}  * ${k} )/1" )"
+#target_h_px="$( bc <<< "scale=0 ; ( ${h_px} * ${k} )/1" )"
+#target_dpi_x="$( bc <<< "scale=0 ; ( ${dpi_x} * ${k} )/1" )"
+#target_dpi_y="$( bc <<< "scale=0 ; ( ${dpi_y} * ${k} )/1" )"
+
+target_w_px="$( bc <<< "${w_px}  * ${k}" )"
+target_h_px="$( bc <<< "${h_px} * ${k}" )"
+target_dpi_x="$( bc <<< "${dpi_x} * ${k}" )"
+target_dpi_y="$( bc <<< "${dpi_y} * ${k}" )"
+test_calculation
+
+echo "INFO:${0}:${LINENO}: Converting (${w_px}x${w_px}, DPI ${dpi_x}) into (${target_w_px}x${target_w_px}, DPI ${target_dpi_x}) - ${f_in}"
+convert -density "${target_dpi_x}" -resize "$( bc <<< "${k}*100" )%" -units PixelsPerInch "${f_in}" "${f_out_tmp}"
+
+if [ "${f_in}" == "${f_out}" ] ; then
+    set +x
+    read "Overwrite '${f_in}'? [yes/no]" fb
+    if [[ "${fb}" =~ ^(yes|y)$ ]] ; then
+        true
+    else
+        echo "INFO:${0}:${LINENO}: Skipping '${f_in}'." >&2
+        exit 0
+    fi
+    if [[ "${*}" =~ --verbose ]] ; then set -x ; fi
+fi
+
+mv "${f_out_tmp}" "${f_out}"
+
+true : Job done. >&2
