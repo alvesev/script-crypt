@@ -20,7 +20,19 @@
 ##
 
 if [[ "${*}" =~ (^|[[:space:]])(--help|-h)([[:space:]]|$) ]] || [ "${#}" == "0" ] ; then
-    cat "${0}"
+    cat << 'EOF'
+Usage for conversion.
+
+With parallelisation limit to CPU capability:
+
+    find . -maxdepth 1 -type f -name "*.png" -print0 | xargs -0 -P $(nproc) -I "{}" bash -c 'reduce-image-dpi 0.33 "{}" "lowres/{}"'
+
+    find . -maxdepth 1 -type f -name "*.png" -print0 | parallel -0 -j +0 reduce-image-dpi 0.33 "{}" "lowres/{}"
+
+Convert all at once:
+
+    find . -maxdepth 1 -type f -name "*.png" -print0 -exec bash -c 'reduce-image-dpi 0.33 "${1}" "lowres/${1}" &' -- "{}" \;
+EOF
     exit
 fi
 
