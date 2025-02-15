@@ -74,6 +74,7 @@ install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/reduce-ima
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/reduce-image-dpi"                 "${CHROOT}/usr/bin/reduce-image-dpi"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/umount-parent"                    "${CHROOT}/usr/bin/umount-parent"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/git-clone-into-path"              "${CHROOT}/usr/bin/git-clone-into-path"
+install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/jaml"                             "${CHROOT}/usr/bin/jaml"
 
 ln -s "/etc/init.d/sys-suspend-on-lid" "${CHROOT}/etc/rc3.d/S07sys-suspend-on-lid"
 

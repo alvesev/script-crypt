@@ -1,0 +1,150 @@
+#!/usr/bin/python3
+#
+#  Copyright 2007-2025 Alex Vesev
+#
+#  This file is part of Script Crypt.
+#
+#  Script Crypt is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Script Crypt is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Script Crypt. If not, see <https://www.gnu.org/licenses/>.
+#
+##
+
+import sys
+import logging
+import argparse
+import json
+import yaml
+import traceback
+
+# # #
+# #
+#
+
+if "--verbose" in sys.argv:
+    log_level = logging.DEBUG
+    format = "%(levelname)s" \
+             + ":%(filename)s" \
+             + ":%(lineno)s" \
+             + ":pid=%(process)d" \
+             + ": %(message)s"
+else:
+    log_level = logging.INFO
+    format = "%(levelname)s" \
+             + ":%(filename)s" \
+             + ":%(lineno)s" \
+             + ": %(message)s"
+
+logging.basicConfig(format=format, level=log_level)
+l = logging.getLogger('root_logger')
+
+# # #
+# #
+#
+
+def get_cliargs():
+    text_doc_main = "Convert YAML to JSON and vice versa."
+    text_doc_file_name = "If file path(name) is only '-', then will read/write from/into stdin/stdout."
+    default_indent = 4
+
+    parser = argparse.ArgumentParser(description=text_doc_main)
+
+    parser.add_argument("-j", "--json",
+                        dest='f_json',
+                        default="-",
+                        help=f"JSON file path. {text_doc_file_name}")
+    parser.add_argument("-y", "--yaml",
+                        dest='f_yaml',
+                        default="-",
+                        help=f"YAML file path. {text_doc_file_name}")
+    parser.add_argument("-i", "--indentation",
+                        dest='indent',
+                        default=default_indent,
+                        type=int,
+                        action="store",
+                        help=f"Number of spaces for indentation prefix size. Default is {default_indent}.")
+
+    parser.add_argument("--sort",
+                        dest='do_sort',
+                        default=False,
+                        action="store_true",
+                        help=f"Sort keys if applicable.")
+
+    parser.add_argument("--verbose",
+                        dest='is_verbose',
+                        default="false",
+                        action="store_true",
+                        help=f"Debug logging.")
+
+    cnvrsn_drctn = parser.add_mutually_exclusive_group(required=True)
+    cnvrsn_drctn.add_argument("--to-yaml",
+                              dest="direction",
+                              action="store_const",
+                              const="TO_YAML",
+                              help="Convert input into YAML.")
+    cnvrsn_drctn.add_argument("--to-json",
+                              dest="direction",
+                              action="store_const",
+                              const="TO_JSON",
+                              help="Convert input into JSON")
+
+    cli_args = parser.parse_args()
+
+    return cli_args
+
+
+def read_from(file_name):
+    if file_name == '-':
+        text = '\n'.join(sys.stdin.readlines())
+    else:
+        with open(file_name, "r") as fh:
+            text = '\n'.join(fh.readlines())
+    return text
+
+
+def write_out_into(text, file_name):
+    if file_name == '-':
+        sys.stdout.write(text)
+    else:
+        with open(file_name, "w") as fh:
+            fh.writelines(text)
+
+# # #
+# #
+#
+
+if __name__ == '__main__':
+    try:
+        cli_args = get_cliargs()
+
+        l.debug(f"Conversion direction is '{cli_args.direction}'.")
+        l.debug(f"JSON is: {cli_args.f_json}")
+        l.debug(f"YAML is: {cli_args.f_yaml}")
+
+        if cli_args.direction == "TO_JSON":
+            input = yaml.safe_load(read_from(cli_args.f_yaml))
+            output = json.dumps(input,
+                                indent=cli_args.indent,
+                                sort_keys=cli_args.do_sort)
+            write_out_into(output, cli_args.f_json)
+
+        elif cli_args.direction == "TO_YAML":
+            input = json.loads(read_from(cli_args.f_json))
+            output = yaml.safe_dump(input,
+                                    default_flow_style=False,
+                                    indent=cli_args.indent,
+                                    sort_keys=cli_args.do_sort)
+            write_out_into(output, cli_args.f_yaml)
+
+    except Exception:
+        l.error(f"Failed to convert.\n{traceback.format_exc()}")
+        exit(1)
