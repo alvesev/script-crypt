@@ -1,3 +1,11 @@
+script-crypt (27) wilma; urgency=low
+
+  * Pixels density reducer for images.
+  * JSON-YAML converter and aligner.
+  * BT device reconnect capability.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Sat, 01 Mar 2025 13:02:00 +0100
+
 script-crypt (26) wilma; urgency=low
 
   * Photocamera files renamer and aligner.
