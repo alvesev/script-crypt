@@ -85,9 +85,11 @@ function check_if_is_known_dev {
 function is_connected {
     local -r target_mac="${1?Device MAC address is not specified.}"
 
-    bluez_version="$( bluetoothd -v )"
-    if [ -z "${bluez_version}" ] ; then
-        bluez_version="$( bluetoothctl --version )"
+    if type bluetoothd 1>/dev/null 2>/dev/null ; then
+        bluez_version="$( bluetoothd -v )"
+    fi
+    if [ -z "${bluez_version:-}" ] ; then
+        bluez_version="$( bluetoothctl --version | awk '{print $2}' )"
     fi
 
     function _is_connected {
