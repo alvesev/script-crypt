@@ -32,6 +32,9 @@ if [ "${*}" != "${*/--verbose/}" ] ; then
     OPT_VERBOSE="--verbose"
 fi
 
+declare -ri shell_val_true=0
+declare -ri shell_val_false=1
+
 ###
 ##
 #
@@ -75,6 +78,30 @@ function check_if_is_known_dev {
         set +x
         echo "ERROR:${0}:${LINENO}: Unknown device '${dev_conf_name}' for configuration file '${file_cnf}'. See '${0}' --help" >&2
         exit 1
+    fi
+}
+
+
+function is_connected {
+    local -r target_mac="${1?Device MAC address is not specified.}"
+
+    bluez_version="$( bluetoothd -v )"
+    if [ -z "${bluez_version}" ] ; then
+        bluez_version="$( bluetoothctl --version )"
+    fi
+
+    function _is_connected {
+        if dpkg --compare-versions "${bluez_version}" lt "5.65" ; then
+            bluetoothctl info "${target_mac}" | grep -i --quiet 'Connected: yes'
+        else
+            bluetoothctl devices Connected | grep -i --quiet "${target_mac}"
+        fi
+    }
+
+    if _is_connected ; then
+        return ${shell_val_true}
+    else
+        return ${shell_val_false}
     fi
 }
 
@@ -166,6 +193,11 @@ while [ ${#} -gt 0 ] ; do
                 declare -r op_name="connect"
             fi
             ;;
+        -r|--reconnect)
+            if [ ! -v op_name ] ; then
+                declare -r op_name="reconnect"
+            fi
+            ;;
         -d|--disconnect)
             if [ ! -v op_name ] ; then
                 declare -r op_name="disconnect"
@@ -185,6 +217,7 @@ while [ ${#} -gt 0 ] ; do
     esac
     shift
 done
+
 
 if [ "${op_name}" == "list-configured" ] ; then  # List devices by names known to this script.
     set +x
@@ -211,6 +244,35 @@ elif [ "${op_name}" == "connect" ] ; then
             sleep 0.5
         fi
     done
+elif [ "${op_name}" == "reconnect" ] ; then
+
+    function sleep_for {
+        if ! type bc 1>/dev/null 2>/dev/null ; then
+            return ${shell_val_true}
+        fi
+        local -r pb_cap="${1?Progress bar caption not set.}"
+        local    pb_time="${2?Progress bar duration in seconds is not set.}"
+        pb_time=$( bc <<< "${pb_time}*8" )
+        local i
+        for i in $( seq 1 "${pb_time}" ) ; do
+            echo -ne "${pb_cap} $(printf "%0.s." $(seq 1 $i))\r"
+            sleep 0.125
+        done
+        echo
+    }
+
+    if is_connected "${device_mac_pool[$d_name]}" ; then
+        "${0}" --disconnect --name="${d_name}"
+        sleep_for "Pause before connect" 2
+        "${0}" --connect    --name="${d_name}"
+    else
+        "${0}" --connect    --name="${d_name}"
+        sleep_for "Pause before disconnect" 0.5
+        "${0}" --disconnect --name="${d_name}"
+        sleep_for "Pause before connect" 2
+        "${0}" --connect    --name="${d_name}"
+    fi
+
 elif [ "${op_name}" == "disconnect" ] ; then
     bluetoothctl disconnect "${device_mac_pool[$d_name]}" \
         || op_status=$?
