@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#  Copyright 2007-2024 Alex Vesev
+#  Copyright 2007-2025 Alex Vesev
 #
 #  This file is part of Script Crypt.
 #
@@ -19,10 +19,10 @@
 #
 ##
 
-file_order_short="images-order.txt"
+f_order_short="images-order.txt"
 f_prefix_short="name-prefix.txt"
-help_text="Put images files names into text file '${file_order_short}' in the directory with images, one name per line. Put output-file name prefix into file '${f_prefix_short}'."
-if [[ "${*}" =~ --help ]] || [ "${#}" == "0" ] ; then
+help_text="Put images files names into text file '${f_order_short}' in the directory with images, one name per line. Put output-file name prefix into file '${f_prefix_short}'."
+if [[ "${*}" =~ (^|[[:space:]])--help|-h([[:space:]]|$) ]] || [ "${#}" == "0" ] ; then
     echo "${help_text}"
     cat "${0}" | egrep "^[[:space:]]{1,}(-[a-zA-Z]{1,}|--[a-zA-Z\|\-]{1,}))"
     exit
@@ -30,128 +30,14 @@ fi
 
 PS4="+:${0}:\${LINENO}: "
 set -eu
-if [[ "${*}" =~ --verbose ]] ; then set -x ; fi
-
-###
-##
-#
-
-f_prefix="$( pwd )/${f_prefix_short}"
-if [ -e "${f_prefix}" ] ; then
-    while read s ; do
-        declare -r prefix="${s}"
-        break  # Take first line only.
-    done < <( cat "${f_prefix}" )
-else
-    declare -r  prefix="image"
+if [[ "${*}" =~ (^|[[:space:]])--verbose([[:space:]]|$) ]] ; then
+    set -x
+    opt_verbose="--verbose"
 fi
 
 ###
 ##
 #
-
-f_order_full="$( pwd )/${file_order_short}"
-declare -a images_order=()
-if [ -e "${f_order_full}" ] ; then
-    while read f ; do
-        if [ -n "${f}" ] ; then
-            images_order+=("${f}")
-        fi
-    done < <( cat "${f_order_full}" )
-else
-    meta_data="WARNING:$( basename "${0}" ):${LINENO}:"
-    message="File with images order '${f_order_full}' was not found. ${help_text}"
-    echo "${meta_data} ${message}" >&2
-    if ! whiptail                                   \
-            --yesno                                 \
-            --yes-button "continue"                 \
-            --no-button "exit"                      \
-            --backtitle "${meta_data}"              \
-            --title " ${meta_data} " "${message}"   \
-            20 70                                   \
-            3>&1 1>&2 2>&3
-    then
-        exit 1
-    fi
-    declare -ra images_order=(
-                            'scan-01.jpeg'
-                            'scan-02.jpeg'
-                            'scan-03.jpeg'
-                            )
-fi
-
-###
-##
-#
-
-declare -r  suffix_for_full_size="${images_order[0]##*\.}"
-if [ -z "${suffix_for_full_size}" ] ; then
-    set +x
-    echo "ERROR:${0}:${LINENO}: Failed to get file name extension from name '${images_order[0]}'." >&2
-    exit 1
-fi
-
-declare -r  suffix_for_small="reduced.jpg"
-declare -r  f_pdf_out="${prefix}.pdf"
-
-
-declare -A map_scanner_to_desired=()
-declare -i idx=1
-for f in "${images_order[@]}" ; do
-    map_scanner_to_desired["${f}"]="${prefix}_list-$( printf "%02d\n" ${idx} ).${suffix_for_full_size}"
-    idx+=1
-done
-
-
-###
-##
-#
-
-#for f in "${map_scanner_to_desired[@]}" ; do
-#    if [ ! -e "${f}" ] ; then
-#        set +x
-#        echo "ERROR:${0}:${LINENO}: File '${f}' was not found." >&2
-#        exit 1
-#    fi
-#done
-
-while [ "${#}" != 0 ] ; do
-    arg_name="${1%%=*}"
-    arg_value="${1#*=}"
-    case "${arg_name}" in
-    --jpeg-quality|-q)  # JPEG quality above 0, below 100. '0' is undocumented in 'man convert'.
-        declare -r jpeg_quality="${arg_value}"
-        ;;
-    --verbose|--help)   # Other options.
-        true
-        ;;
-    *)
-        set +x
-        echo "ERROR:${0}:${LINENO}: Unknown argument '${arg_name}'." >&2
-        exit 1
-    esac
-    shift
-done
-
-if [ -z "${jpeg_quality:-}" ] ; then
-    set +x
-    echo "ERROR:${0}:${LINENO}: JPEG quality is not set at CLI." >&2
-    exit 1
-fi
-
-test -n "${prefix}"
-test -n "${suffix_for_full_size}"
-test -n "${suffix_for_small}"
-
-###
-##
-#
-
-for f in "${!map_scanner_to_desired[@]}" ; do
-    if [ ! -e "${map_scanner_to_desired[$f]}" ] ; then
-        test -f "${f}" && mv "${f}" "${map_scanner_to_desired[$f]}"
-    fi
-done
 
 function reduce_img {
     set -eu
@@ -164,20 +50,160 @@ function reduce_img {
     echo "INFO:${0}:${LINENO}: Converted $( du -hs "${f_in}" | tr -d '\n' )  ->  $( du -hs "${f_out}" | tr -d '\n' )." >&2
 }
 
-declare -a childs=()
-for f in "${map_scanner_to_desired[@]}" ; do
-    reduce_img "${f}" "${f/.$suffix_for_full_size}.${suffix_for_small}" &
-    childs+=("${!}")
+
+function get_tmp_name {
+    local dir_name_as_prefix="${1}"
+    local file_name="${2}"
+    local tmp_name
+    local suffix
+
+    file_name="$( basename "${f}" )"  # TODO - work with tree of files.
+    #test -n "${file_name}"  # No sense to check here due to this function is child process.
+    suffix="${f##*\.}"
+    tmp_name="${dir_name_as_prefix}/${file_name/%.$suffix}.tmp.${suffix}"
+    #test -n "${tmp_name}"  # No sense to check here due to this function is child process.
+    echo -n "${tmp_name}"
+}
+
+
+function align_names {
+    local -r f_main="${1?File name of a file with list of target file names is not specified.}"
+    local -r prefix="${2?Output prefix for file names is not specified.}"
+    local -r f_obsolete="${f_main}.$( date '+%Y-%m-%d-%H%M-%S.%N' )-$( date '+%z' | sed 's/+/p/g;s/-/m/g' )"
+    local    f
+    local -i idx
+    local    f_name_new
+    local    suffix
+
+    echo "INFO:${0}:${LINENO}: Aligning file names." >&2
+
+    cp "${f_main}" "${f_obsolete}"
+    trap "cp '${f_obsolete}' '${f_main}'" ERR
+    echo -n "" > "${f_main}"
+    idx=0
+    while read f ; do
+        idx+=1
+        f_name_new="${output_name_prefix}-$( printf "%03d" ${idx} ).${f##*\.}"
+        echo "${f_name_new}" >> "${f_main}"
+        if [ -f "${f_name_new}" ] ; then
+            echo "WARNING:${0}:${LINENO}: Already exist '${f_name_new}'. Skipping" >&2
+        else
+            mv -v "${f}" "${f_name_new}"
+        fi
+    done < <( cat "${f_obsolete}" )
+}
+
+###
+##
+#
+
+req_names_align="false"
+while [ "${#}" != 0 ] ; do
+    arg_name="${1%%=*}"
+    arg_value="${1#*=}"
+    case "${arg_name}" in
+    --align-names)      # Rename image files by template.
+        declare -r req_names_align="true"
+        ;;
+    --jpeg-quality|-q)  # JPEG quality: use 'keep', or above 0 and below or equal 100. '0' is undocumented in 'man convert'.
+        declare -r jpeg_quality="${arg_value,,}"
+        ;;
+    --verbose|--help)   # Other options.
+        true
+        ;;
+    *)
+        set +x
+        echo "ERROR:${0}:${LINENO}: Unknown argument '${arg_name}'." >&2
+        exit 1
+    esac
+    shift
 done
-error_level=0
-for pid in "${childs[@]}" ; do
-    if ! wait "${pid}" ; then
-        #echo "ERROR:${0}:${LINENO}: Had fail." >&2
-        error_level=1
+
+###
+##
+#
+
+if [ -z "${jpeg_quality:-}" ] ; then
+    declare -r jpeg_quality="100"
+fi
+
+declare -r f_order_short="images-order.txt"
+declare -r f_prefix_short="name-prefix.txt"
+
+for f in "${f_order_short}"  "${f_order_short}" ; do
+    if [ ! -r "${f}" ] || [ ! -s "${f}" ] ; then
+        set +x
+        echo "ERROR:${0}:${LINENO}: File '${f_order_short}' can not be read or can not be empty." >&2
+        exit 1
     fi
 done
-wait
-[ "${error_level}" == "0" ] || exit 1
+
+declare -r output_name_prefix="$( cat "${f_prefix_short}" )"
+if [ -z "${output_name_prefix}" ] ; then
+    set +x
+    echo "ERROR:${0}:${LINENO}: Prefix from '${f_prefix_short}' can not be empty." >&2
+    exit 1
+fi
+
+if [ "${req_names_align}" == "true" ] ; then
+    align_names "${f_order_short}" "${output_name_prefix}"
+fi
+
+declare -r f_pdf_out="${output_name_prefix}.pdf"
+
+declare -r dir_tmp="$( mktemp --directory "/dev/shm/$( basename "${0}" )-XXXXXXXX" )"
+trap "if [ -n '${opt_verbose:-}' ] ; then set -x ; fi \
+        ; PS4='+:${0}:${LINENO}:TRAP: ' \
+        ; if [ -n '${dir_tmp}' ] ; then rm -rf '${dir_tmp}' ; fi" \
+            ERR EXIT INT TERM QUIT HUP
+
+declare -a ordered_f_names_input=()
+while read f ; do
+    if [ -z "${f}" ] ; then
+        set +x
+        echo "ERROR:${0}:${LINENO}: File name can not be empty (see content of '${f_order_short}')." >&2
+        exit 1
+    fi
+    ordered_f_names_input+=("${f}")
+done < <( cat "${f_order_short}" )
+
+declare -a ordered_f_names_tmp=()
+
+
+for f in "${ordered_f_names_input[@]}" ; do
+    ordered_f_names_tmp+=( "$( get_tmp_name "${dir_tmp}" "${f}" )" )
+    for i in "${f}" "${ordered_f_names_tmp[-1]}" ; do
+        if [ -z "${i}" ] ; then
+            set +x
+            echo "ERROR:${0}:${LINENO}: File name can not be empty." >&2
+            exit 1
+        fi
+    done
+done
+
+if [[ "${jpeg_quality,,}" =~ ^keep|100$ ]] ; then
+    for i in "${!ordered_f_names_input[@]}" ; do
+        cp \
+            "$( readlink -f "${ordered_f_names_input[$i]}" )" \
+            "${ordered_f_names_tmp[$i]}"  # TODO - 'ln -s' here?
+    done
+else
+    declare -a childs=()
+    for i in "${!ordered_f_names_input[@]}" ; do
+        reduce_img "${ordered_f_names_input[$i]}" "${ordered_f_names_tmp[$i]}" &
+        childs+=("${!}")
+    done
+    error_level=0
+    for pid in "${childs[@]}" ; do
+        if ! wait "${pid}" ; then
+            #echo "ERROR:${0}:${LINENO}: Had a fail." >&2
+            error_level=1
+        fi
+    done
+    wait
+    [ "${error_level}" == "0" ] || exit 1
+fi
+
 
 ##
 #   In order to make it works do (security breach, https://bugs.archlinux.org/task/60580):
@@ -187,8 +213,7 @@ wait
 #       /etc/ImageMagick-6/policy.xml:94:  <!-- <policy domain="coder" rights="none" pattern="PDF" /> -->
 
 echo "INFO:${0}:${LINENO}: Creating PDF..." >&2
-convert $( ls -v "${prefix}"*".${suffix_for_small}" ) "pdf:${f_pdf_out}"
-rm -f "${prefix}"*".${suffix_for_small}"
+convert "${ordered_f_names_tmp[@]}" "pdf:${f_pdf_out}"
 
 set +x
 echo "INFO:${0}:${LINENO}: PDF size is $( du -hs "${f_pdf_out}" | awk '{print $1}' )." >&2
