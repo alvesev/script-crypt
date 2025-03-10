@@ -1,4 +1,11 @@
+script-crypt (28) wilma; urgency=low
+
+  * Assembler of images as PDF now can keep input file names as is.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Mon, 10 Mar 2025 19:52:00 +0100
+
 script-crypt (27) wilma; urgency=low
+
 
   * Pixels density reducer for images.
   * JSON-YAML converter and aligner.
