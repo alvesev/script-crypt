@@ -1,0 +1,51 @@
+#!/usr/bin/bash
+#
+#  Copyright 2007-2025 Alex Vesev
+#
+#  This file is part of Script Crypt.
+#
+#  Script Crypt is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Script Crypt is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Script Crypt. If not, see <https://www.gnu.org/licenses/>.
+#
+##
+#
+#   This is Midnight Commander user menu helper for files hashing.
+#
+##
+
+PS4="+:${0}:\${LINENO}: "
+set -eu
+
+declare -r hash_tool="/usr/bin/sha256sum"
+declare -r dir_target="${1?Target directory not set at CLI.}"
+shift
+
+declare -r num_of_cpu="$( nproc )"
+
+declare -r d_tmp="$( mktemp --directory --tmpdir="/dev/shm" "$( basename "${0}" ).$$.XXXXXXXX" )"
+trap "PS4='+:${0}:${LINENO}:TRAP: ' ; rm -rf '${d_tmp}'" EXIT QUIT TERM ABRT INT ERR
+mkdir -p "${d_tmp}"
+
+cd "${dir_target}"
+echo "INFO:${0}:${LINENO}: Going in '${dir_target}'." >&2
+for f_name in "${@}" ; do
+    (
+        flock -n 9
+        echo "INFO:${0}:${LINENO}: processing '${f_name}'." >&2
+        "${hash_tool}" -b "${f_name}" > "${f_name}.sha256"
+    ) 9>"${d_tmp}/$(uuidgen)" &
+    while [ "$(jobs -r | wc -l)" -ge "$num_of_cpu" ]; do sleep 0.2 ; done
+done
+wait
+
+echo "INFO:${0}:${LINENO}: Job done." >&2

@@ -1,8 +1,9 @@
 script-crypt (28) wilma; urgency=low
 
   * Assembler of images as PDF now can keep input file names as is.
+  * MC helper for files hashing.
 
- -- Alex Vesev <alex.vesev@gmail.com>  Mon, 10 Mar 2025 19:52:00 +0100
+ -- Alex Vesev <alex.vesev@gmail.com>  Mon, 20 Apr 2025 18:43:00 +0200
 
 script-crypt (27) wilma; urgency=low
 

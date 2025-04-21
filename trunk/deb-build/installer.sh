@@ -75,6 +75,7 @@ install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/reduce-ima
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/umount-parent"                    "${CHROOT}/usr/bin/umount-parent"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/git-clone-into-path"              "${CHROOT}/usr/bin/git-clone-into-path"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/jaml"                             "${CHROOT}/usr/bin/jaml"
+install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/mc-hash-files"                    "${CHROOT}/usr/bin/mc-hash-files"
 
 ln -s "/etc/init.d/sys-suspend-on-lid" "${CHROOT}/etc/rc3.d/S07sys-suspend-on-lid"
 
