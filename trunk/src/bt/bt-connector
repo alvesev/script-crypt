@@ -130,6 +130,12 @@ if [ "${*}" != "${*/--install/}" ] ; then
         install --directory --mode 755 --owner=root --group=root /etc/bt-connector/
         cat << EOF > /etc/bt-connector/conf.json
 {
+    "connection": {
+        "time": {
+            "wake_up_cool_off":     5,
+            "tear_down_cool_off":   5
+        }
+    },
     "device": {
         "human-readable-name-A": "00:11:AA:BB:22:44",
         "human-readable-name-B": "CC:DD:55:66:EE:FF"
@@ -263,15 +269,25 @@ elif [ "${op_name}" == "reconnect" ] ; then
         echo
     }
 
+    declare cool_off_wake_up="$(   cat "${file_cnf}" | jq -r ".connection.time.wake_up_cool_off" )"
+    declare cool_off_tear_down="$( cat "${file_cnf}" | jq -r ".connection.time.tear_down_cool_off" )"
+    for i in "${cool_off_wake_up}" "${cool_off_tear_down}" ; do
+        if [[ ! "${i}" =~ ^[0-9]+$ ]] ; then
+            echo "ERROR:${0}:${LINENO}: Timeout from '${file_cnf}' should be positive integer number." >&2
+            declare -i cool_off_wake_up=3
+            declare -i cool_off_tear_down=3
+        fi
+    done
+
     if is_connected "${device_mac_pool[$d_name]}" ; then
         "${0}" --disconnect --name="${d_name}"
-        sleep_for "Pause before connect" 2
+        sleep_for "Pause before connect" "${cool_off_wake_up}"
         "${0}" --connect    --name="${d_name}"
     else
         "${0}" --connect    --name="${d_name}"
-        sleep_for "Pause before disconnect" 0.5
+        sleep_for "Pause before disconnect" "${cool_off_tear_down}"
         "${0}" --disconnect --name="${d_name}"
-        sleep_for "Pause before connect" 2
+        sleep_for "Pause before connect" "${cool_off_wake_up}"
         "${0}" --connect    --name="${d_name}"
     fi
 
