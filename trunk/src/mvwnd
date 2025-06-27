@@ -1,0 +1,37 @@
+#!/bin/bash
+#
+#  Copyright 2007-2025 Alex Vesev
+#
+#  This file is part of Script Crypt.
+#
+#  Script Crypt is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Script Crypt is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Script Crypt. If not, see <http://www.gnu.org/licenses/>.
+#
+##
+
+PS4="+:${0}:\${LINENO}: "
+set -eu
+
+declare -r wnd_caption_fragment="${1?Window title/caption fragment to be detected is not specified at CLI.}"
+
+#declare -r workspace_index="$( wmctrl -d | grep ... )"  # It is 'workspace number - 1', numeration is started from 0.
+declare -r workspace_index="$( xprop -root _NET_CURRENT_DESKTOP \
+                                | sed --regexp-extended 's/.*=[[:space:]]{1,}//' )"  # It is 'workspace number - 1', numeration is started from 0.
+
+while read wnd_id ; do
+    wmctrl -i -r "${wnd_id}" -t "${workspace_index}" || true
+done <<< "$( wmctrl -l \
+                | grep -i "${wnd_caption_fragment}" \
+                | awk '{print $1}' )"
+
+true : Job done.
