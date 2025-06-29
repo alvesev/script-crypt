@@ -1,14 +1,13 @@
 script-crypt (28) wilma; urgency=low
 
-  * Assembler of images as PDF now can keep input file names as is.
+  * The images assembler for PDFs can now retain the original input file names.
   * MC helper for files hashing.
-  * BT connector cool-off time can be configured.
-  * Window's workspace changer.
+  * The BT connector's cooldown time can be configured.
+  * Workspace selector for placing a window.
 
- -- Alex Vesev <alex.vesev@gmail.com>  Fri, 27 Jun 2025 19:20:00 +0200
+ -- Alex Vesev <alex.vesev@gmail.com>  Fri, 29 Jun 2025 11:54:00 +0200
 
 script-crypt (27) wilma; urgency=low
-
 
   * Pixels density reducer for images.
   * JSON-YAML converter and aligner.
