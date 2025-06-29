@@ -5,7 +5,7 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-HISTTIMEFORMAT="%a_%Y-%m-%d_%H:%M:%S "
+HISTTIMEFORMAT="%a_%Y-%m-%d_%H:%M:%S|  "
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
@@ -15,8 +15,8 @@ HISTCONTROL=ignoreboth
 shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTSIZE=8000
+HISTFILESIZE=22000
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -79,7 +79,7 @@ esac
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls --color=auto'
+    alias ls='ls --color=auto --group-directories-first'
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
 
@@ -89,9 +89,9 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 # some more ls aliases
-alias ll='ls -alF --time-style="+%Y-%m-%d %H:%M"'
-alias la='ls -A --time-style="+%Y-%m-%d %H:%M"'
-alias l='ls -CF --time-style="+%Y-%m-%d %H:%M"'
+alias ll='ls -alF --time-style="+%Y-%m-%d %H:%M" --group-directories-first'
+alias la='ls -A --time-style="+%Y-%m-%d %H:%M" --group-directories-first'
+alias l='ls -CF --time-style="+%Y-%m-%d %H:%M" --group-directories-first'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert

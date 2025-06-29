@@ -5,7 +5,7 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-HISTTIMEFORMAT="%a_%Y-%m-%d_%H:%M:%S "
+HISTTIMEFORMAT="%a_%Y-%m-%d_%H:%M:%S|  "
 
 # don't put duplicate lines in the history. See bash(1) for more options
 # ... or force ignoredups and ignorespace
@@ -21,6 +21,10 @@ HISTFILESIZE=8000
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
+
+# If set, the pattern "**" used in a pathname expansion context will
+# match all files and zero or more directories and subdirectories.
+#shopt -s globstar
 
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
@@ -75,7 +79,7 @@ esac
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls --color=auto'
+    alias ls='ls --color=auto --group-directories-first'
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
 
@@ -85,9 +89,9 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 # some more ls aliases
-alias ll='ls -alF --time-style="+%Y-%m-%d %H:%M"'
-alias la='ls -A --time-style="+%Y-%m-%d %H:%M"'
-alias l='ls -CF --time-style="+%Y-%m-%d %H:%M"'
+alias ll='ls -alF --time-style="+%Y-%m-%d %H:%M" --group-directories-first'
+alias la='ls -A --time-style="+%Y-%m-%d %H:%M" --group-directories-first'
+alias l='ls -CF --time-style="+%Y-%m-%d %H:%M" --group-directories-first'
 
 # Alias definitions.
 # You may want to put all your additions into a separate file like

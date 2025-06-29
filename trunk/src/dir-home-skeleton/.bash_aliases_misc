@@ -25,12 +25,27 @@ done <<< "$( find ~ -maxdepth 1 -type f -name ".bash_aliases_*" | sort -h )"
 '
 alias sa='source ~/.bash_aliases'
 
-alias ls='ls --color=auto --time-style="+%Y-%m-%d %H:%M"'
-alias ll='ls -alF --time-style="+%Y-%m-%d %H:%M"'
-alias la='ls -A --time-style="+%Y-%m-%d %H:%M"'
-alias l='ls -CF --time-style="+%Y-%m-%d %H:%M"'
+alias ls='ls --color=auto --time-style="+%Y-%m-%d %H:%M" --group-directories-first'
+alias ll='ls -alF --time-style="+%Y-%m-%d %H:%M" --group-directories-first'
+alias la='ls -A --time-style="+%Y-%m-%d %H:%M" --group-directories-first'
+alias l='ls -CF --time-style="+%Y-%m-%d %H:%M" --group-directories-first'
 
 alias h='history | less +G'
+fzf-history() {
+    local selected_command;
+    selected_command=$(history \
+                        | fzf  --tac --no-sort --exact --preview-window=wrap \
+                        | awk '{$1=""; \
+                                $2=""; \
+                                sub(/^ +/, ""); \
+                                print $0}');
+    if [ -n "$selected_command" ]; then
+        READLINE_LINE="$selected_command";
+        READLINE_POINT=${#READLINE_LINE};
+    fi;
+}  # sudo apt-get install fzf
+if type fzf 1>/dev/null 2>/dev/null ; then bind -x '"\C-r": fzf-history' ; fi
+
 alias g='egrep --color=auto'
 
 alias mc='/usr/bin/mc-wrapper-user-custom --bright'

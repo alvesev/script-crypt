@@ -1,0 +1,69 @@
+#
+#  Copyright 2007-2025 Alex Vesev
+#
+#  This file is part of Script Crypt.
+#
+#  Script Crypt is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Script Crypt is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Script Crypt. If not, see <https://www.gnu.org/licenses/>.
+#
+##
+
+alias kc="kubectl"
+
+alias kcci="kubectl     cluster-info"
+alias kccid="kubectl    cluster-info dump"
+
+alias kcg="kubectl      get"
+alias kcga="kubectl     get all -A"
+alias kcgp="kubectl     get pods"
+alias kcgpa="kubectl    get pods -A"
+alias kcgs="kubectl     get svc"
+alias kcgsa="kubectl    get svc -A"
+
+alias kcd="kubectl      describe"
+alias kcdp="kubectl     describe pods"
+alias kcdpa="kubectl    describe pods -A"
+alias kcds="kubectl     describe svc"
+alias kcdsa="kubectl    describe svc -A"
+
+alias kcl="kubectl      logs"
+alias kclf="kubectl     logs -f"
+
+alias kcge="kubectl get events"
+alias kcge-time-sorted-bad-TS="kubectl get events --sort-by=.lastTimestamp"
+alias kcge-time-sorted="kubectl get events --sort-by=.lastTimestamp -o custom-columns='LAST SEEN:.lastTimestamp, TYPE:.type, REASON:.reason, OBJECT:.involvedObject.name, MESSAGE:.message'"
+
+alias kcdel="kubectl    delete"
+
+alias ka="kubeadm"
+alias mk="minikube"
+
+alias ke="kubectl       exec -ti"
+
+alias kx="kubectx"  # In package 'kubectx' from Debian Bookworm Apt repo.
+alias kn="kubens"   # 'kubens' is in package 'kubectx' from Debian Bookworm Apt repo.
+
+alias kcgspa="kubectl   get         sparkapp"
+alias kcdspa="kubectl   describe    sparkapp"
+alias kcdelspa="kubectl delete      sparkapp"
+
+###
+##
+#
+
+function kcgp-by-prefix {
+    kubectl get pods --output json \
+        | jq -r ".items[] | select(.metadata.name | match(\"${1}.*\")) | .metadata.name"
+}
+export -f kcgp-by-prefix
+
