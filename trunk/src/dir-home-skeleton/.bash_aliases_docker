@@ -1,9 +1,29 @@
+#
+#  Copyright 2007-2025 Alex Vesev
+#
+#  This file is part of Script Crypt.
+#
+#  Script Crypt is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Script Crypt is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Script Crypt. If not, see <https://www.gnu.org/licenses/>.
+#
+##
+
 alias sd-="sudo -i -u docker docker "
 alias d-="sudo docker "
 alias d-b="sudo docker build . "
 alias d-b-tagged="sudo docker build --tag='$(get-tag-time-sec)' . "
 alias d-i="sudo docker images "
-alias d-i-id="sudo docker ps --format={{.ID}} "
+alias d-i-id="sudo docker images --format={{.ID}} "
 alias d-p="sudo docker ps "
 alias d-p-a-id="sudo docker ps --format={{.ID}} "
 alias d-get-conts-all="sudo docker ps --all --format=\"{{.ID}}\" "
@@ -14,4 +34,18 @@ alias d-s="sudo docker start " # Start container (already created).
 alias d-a="sudo docker attach " # Enter into container (already running).
 alias d-del-cont="sudo docker rm "
 alias d-del-image="sudo docker rmi "
+
+function d-del-image-untagged() {
+    while read image_id_for_del ; do
+        sudo docker rmi --force "${image_id_for_del}"
+    done < <( sudo docker images --format '{{json .}}' \
+                | jq -r '. | select(.Tag == "<none>") | .ID' )
+}
+
+alias d-del-image-wo-containers="sudo docker image prune --all "
+alias d-del-all="sudo docker system prune --all --volumes "
+
+#alias d-del-volumes="sudo docker volume prune "
+#alias d-del-volumes="sudo docker volume rm $( docker volume ls --quiet ) "
+
 

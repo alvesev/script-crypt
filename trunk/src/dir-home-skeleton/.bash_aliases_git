@@ -1,3 +1,23 @@
+#
+#  Copyright 2007-2025 Alex Vesev
+#
+#  This file is part of Script Crypt.
+#
+#  Script Crypt is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Script Crypt is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Script Crypt. If not, see <https://www.gnu.org/licenses/>.
+#
+##
+
 alias gk='git status && gitk &'
 alias gs='git status'
 alias gb='git branch'
@@ -6,8 +26,11 @@ alias gc='git checkout'
 alias gi='git-icdiff'
 
 
-alias gl="git log --graph --abbrev-commit --decorate --date='format:%Y-%m-%d %H:%M %z' --format=format:'%C(red)%h%C(reset) - %C(yellow)%d %C(white)%s%Cgreen(%ad) %C(bold blue)%an <%ae>%C(reset)' --all"
-alias gl2="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all"
+alias gl="git log --graph --abbrev-commit --decorate --date='format:%Y-%m-%d %H:%M %z' --format=format:'%C(red)%h%C(reset) - %C(yellow)%d %C(white)%s %Cgreen(%ad) %C(bold blue)%an <%ae>%C(reset)' --all"
+
+# '%B'(comment body) include '%s'(comment subject).
+alias gl2="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n  %C(dim white)%an%n''          %C(white)%B%C(reset) %C(dim white)%C(reset)' --all"
+
 alias gl3="git log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all"
 
 

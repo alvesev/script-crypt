@@ -32,4 +32,5 @@ _ps1_main_color_code=34
 
 #PS1="\[\e[01;${_ps1_main_color_code}m\] ╭──┤\[\e[1;${_ps1_main_color_code}m\u\e[01;${_ps1_main_color_code}m\]├─┤\[\e[44;1;37m\]\h\[\e[0;01;${_ps1_main_color_code}m\]├────○\n╭┴──○\n╰─┤\[\e[0m\]\w\[\e[01;${_ps1_main_color_code}m\]├─○ \[\e[0m\]"
 #PS1="\[\e[01;${_ps1_main_color_code}m\] ╭──┤ \[\e[0;0;37m\u\e[0;01;30m\]@\[\e[01;1;${_ps1_main_color_code}m\]\h\[\e[0;01;${_ps1_main_color_code}m\] ├────○\n╭┴──○\n╰─┤ \[\e[0m\]\w\[\e[01;${_ps1_main_color_code}m\] ├─○ \[\e[0m\]"
-PS1="\[\e[01;${_ps1_main_color_code}m\]╭───┤ \[\e[0;0;37m\u\e[0;01;30m\]@\[\e[01;1;${_ps1_main_color_code}m\]\h\[\e[0;01;${_ps1_main_color_code}m\] ├────○\n╰─┤ \[\e[0m\]\W\[\e[01;${_ps1_main_color_code}m\] ├─○ \[\e[0m\]"
+#PS1="\[\e[01;${_ps1_main_color_code}m\]╭───┤ \[\e[0;0;37m\u\e[0;01;30m\]@\[\e[01;1;${_ps1_main_color_code}m\]\h\[\e[0;01;${_ps1_main_color_code}m\] ├────○\n╰─┤ \[\e[0m\]\W\[\e[01;${_ps1_main_color_code}m\] ├─○ \[\e[0m\]"
+PS1="\[\e[0;${_ps1_main_color_code}m\]╭───┤ \[\e[0;0;37m\u\e[0;01;30m\]@\[\e[0;1;${_ps1_main_color_code}m\]\h\[\e[0;0;${_ps1_main_color_code}m\] ├────○\n╰─┤ \[\e[0m\]\W\[\e[0;${_ps1_main_color_code}m\] ├─○\$(__git_ps1)\[\e[0m\] "

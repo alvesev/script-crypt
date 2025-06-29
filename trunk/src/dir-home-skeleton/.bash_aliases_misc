@@ -1,5 +1,22 @@
-#alias py2="python2 "
-#alias py3="python3 "
+#
+#  Copyright 2007-2025 Alex Vesev
+#
+#  This file is part of Script Crypt.
+#
+#  Script Crypt is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Script Crypt is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Script Crypt. If not, see <https://www.gnu.org/licenses/>.
+#
+##
 
 alias a='
 while read fName ; do
@@ -47,3 +64,6 @@ alias g-catch-router-l2tp-only="egrep 'L2TP'"
 alias makepasswd-from-str="makepasswd --string '$( echo {a..z} {A..Z} {0..9} '-=~!@#$%^&*()_+[]{}|;:,.<>?' | tr --delete ' ' )'"
 
 alias rc="reset ; clear"  # Also 'rc' is implementation of the AT&T Plan 9 shell - 'apt-cache show rc'.
+
+alias py2="python2"
+alias py3="python3"

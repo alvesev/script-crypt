@@ -1,13 +1,19 @@
 [user]
-	name = localhost
-	email = localhost@localhost
+    name = localhost
+    email = localhost@localhost
 [gui]
-	fontui = -family \"DejaVu Sans\" -size 10 -weight normal -slant roman -underline 0 -overstrike 0
-	fontdiff = -family \"DejaVu Sans Mono\" -size 10 -weight normal -slant roman -underline 0 -overstrike 0
+    fontui = -family \"DejaVu Sans\" -size 10 -weight normal -slant roman -underline 0 -overstrike 0
+    fontdiff = -family \"DejaVu Sans Mono\" -size 10 -weight normal -slant roman -underline 0 -overstrike 0
 [core]
-	editor = mcedit
+    editor = mcedit
 [push]
-	default = matching
+    default = current  # Push current branch only, into remote branch with same name.
+    #default = matching  # Push all branches, which have same names locally and remotely.
 [branch]
-	autosetuprebase = always
+    autosetuprebase = always
+
+[gc]
+    autoDetach = false
+[init]
+	defaultBranch = main
 
