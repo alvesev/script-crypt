@@ -1,0 +1,134 @@
+#!/bin/bash
+#
+#  Copyright 2007-2025 Alex Vesev
+#
+#  This file is part of Script Crypt.
+#
+#  Script Crypt is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Script Crypt is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Script Crypt. If not, see <https://www.gnu.org/licenses/>.
+#
+##
+
+declare -r fth="$( basename "${0}" )"
+PS4="+:$( hostname -f ):${fth}:\${LINENO}: "
+if [[ "${*}" =~ (^|[[:space:]])(-v|--verbose)([[:space:]]|$) ]] ; then set -x ; fi
+set -eu
+
+trap "echo 'ERROR:${fth}:${LINENO}: Had error.' ; exit 1" ERR
+trap "echo 'INFO:${fth}:${LINENO}: Do exit.' " EXIT
+trap "echo 'ERROR:${fth}:${LINENO}: Has been interrupted.' ; exit 1" INT TERM HUP
+
+declare -r d_top="$( realpath -s "${1}" )"
+declare    target="$( realpath -s "${2}" )"
+
+declare -r d_opt_out="${d_top}_opt_out"
+
+###
+##
+#
+
+function clean_up_path {
+    set -e
+    local the_path="${1}"
+    if [ -d "${the_path}" ] ; then
+        pushd "${the_path}" 1>/dev/null  # Check for access.
+        the_path="${PWD}"  # Clean up of double '/' and trailing '/'.
+        popd 1>/dev/null  # Simply go back.
+        echo -n "${the_path}"
+    else
+        realpath --no-symlinks "${the_path}" | tr -d '\n'  # Clean up of double '/'.
+    fi
+}
+
+
+function get_reminder() {
+    set -e
+    local full="${1}"
+    local reminder
+
+    full="${1#./}"  # Left strip './'.
+    full="${full%/}"  # Right strip spacer '/'.
+
+    reminder="${full}"
+    reminder="${reminder#$d_top}"
+
+    if [ "${#reminder}" == "${#full}" ] ; then
+        set +x
+        echo "ERROR:${fth}:${LINENO}: Target path '${1}' is not a child path for '${d_top}' or same path." >&2
+        exit 1
+    fi
+
+    reminder="${reminder#/}"  # Left strip spacer '/'.
+
+    if [ "${full##*/}" == "${reminder}" ] ; then  # I.e. an input is a direct child in the top directory.
+        echo -n ""
+    else
+        test -n "${reminder}"
+        echo -n "${reminder}"
+    fi
+}
+
+
+function apply_attributes() {
+    set -e
+    chown --reference="${1}" "${2}"
+    chmod --reference="${1}" "${2}"
+    getfacl -p "${1}" | setfacl --set-file=- "${2}"
+    if stat -c %C "${1}" 1>/dev/null 2>/dev/null ; then  # If SELinux context available.
+        chcon --no-dereference --reference="${1}" "${2}"
+    fi
+}
+
+
+function inherit_attr {
+    set -e
+    local donor="${1}"  # One item longer than acceptor.
+    local acceptor_parent="${2}"  # One item shorter than donor.
+
+    while [ "${donor%/*}" != "${acceptor_parent}" ] ; do  # Process all parents one by one up to top directory and excluding top directory.
+        if [ -e "${donor}" ] ; then
+            apply_attributes "${donor}" "${acceptor_parent}/${donor##*/}"
+        fi
+        donor="${donor%/*}"
+        acceptor_parent="${acceptor_parent%/*}"
+    done
+
+}
+
+###
+##
+#
+
+if [ ! -d "${d_top}" ] ; then
+    set +x
+    echo "ERROR:${fth}:${LINENO}: '${d_top}' is not a directory or not exist." >&2
+    exit 1
+fi
+
+mkdir -p "${d_opt_out}"
+
+target="$( clean_up_path "${target}" )"
+reminder="$( get_reminder "${target}" )"
+d_acceptor_parent="${d_opt_out}/${reminder%/*}"
+d_acceptor_parent="${d_acceptor_parent%/}"
+
+echo "INFO:${fth}:${LINENO}: Target:   ${target}" >&2
+echo "INFO:${fth}:${LINENO}: Acceptor: ${d_acceptor_parent}" >&2
+
+mkdir -p "${d_acceptor_parent}"
+mv "${target}" "${d_acceptor_parent}"
+inherit_attr "${target}" "${d_acceptor_parent}"
+
+echo "INFO:${fth}:${LINENO}: Job done." >&2
+
+true : Job done.
