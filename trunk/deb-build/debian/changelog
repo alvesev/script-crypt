@@ -1,3 +1,15 @@
+script-crypt (30) wilma; urgency=low
+
+  * Files tree filter.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Sun, 19 Oct 2025 13:47:00 +0200
+
+script-crypt (29) wilma; urgency=low
+
+  * Default network interface and IP getter.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Fri, 01 Jul 2025 19:30:00 +0200
+
 script-crypt (28) wilma; urgency=low
 
   * The images assembler for PDFs can now retain the original input file names.
