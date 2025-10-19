@@ -1,0 +1,51 @@
+#!/bin/bash
+#
+#  Copyright 2007-2025 Alex Vesev
+#
+#  This file is part of Script Crypt.
+#
+#  Script Crypt is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Script Crypt is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Script Crypt. If not, see <https://www.gnu.org/licenses/>.
+#
+##
+
+PS4="+:$( basename "${0}" ):\${LINENO}: "
+set -euo pipefail
+if [[ "${*}" =~ (^|[[:space:]])(-v|--verbose)([[:space:]]|$) ]] ; then set -x ; fi
+
+declare -r av="${1?Specify at CLI \'4\' or \'6\' for IP addressing version.}"
+
+declare -rA version_option=(
+                            ["4"]="-4"
+                            ["6"]="-6"
+                            )
+declare -rA subnet=(
+                    ["4"]="0.0.0.0/0"
+                    ["6"]="::/0"
+                    )
+
+iface_name_default="$( ip "${version_option[$av]}" route show default "${subnet[$av]}" | awk '{for(i=1;i<=NF;i++) if ($i=="dev") print $(i+1); exit}' )"
+if [ -z "${iface_name_default}" ] ; then
+    echo "WARNING:${0}:${LINENO}: No default route has been detected for version ${av} addresses." >&2
+    exit 1
+fi
+
+declare -a ip_address_default=()
+while read a ; do
+    ip_address_default+=("${a}")
+done < <( ip -o "${version_option[$av]}" addr show dev "${iface_name_default}" | awk '{print $4}' | cut -d/ -f1 )
+if [ "${#ip_address_default[@]}" == "0" ]; then
+    true : "WARNING:${0}:${LINENO}: No IPv6 address detected."
+fi
+
+echo "${iface_name_default} ${ip_address_default[@]}"
