@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#  Copyright 2007-2017 Alex Vesev
+#  Copyright 2007-2025 Alex Vesev
 #
 #  This file is part of Script Crypt.
 #
@@ -77,6 +77,8 @@ install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/git-clone-
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/jaml"                             "${CHROOT}/usr/bin/jaml"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/mc-hash-files"                    "${CHROOT}/usr/bin/mc-hash-files"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/mvwnd"                            "${CHROOT}/usr/bin/mvwnd"
+install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/get-ip-default"                   "${CHROOT}/usr/bin/get-ip-default"
+install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/optout"                           "${CHROOT}/usr/bin/optout"
 
 ln -s "/etc/init.d/sys-suspend-on-lid" "${CHROOT}/etc/rc3.d/S07sys-suspend-on-lid"
 
