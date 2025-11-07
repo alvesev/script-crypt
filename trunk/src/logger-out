@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-#  Copyright 2007-2020 Alex Vesev
+#  Copyright 2007-2025 Alex Vesev
 #
 #  This file is part of Script Crypt.
 #
@@ -19,13 +19,47 @@
 #  along with Script Crypt. If not, see <http://www.gnu.org/licenses/>.
 #
 ##
+#
+#   FBPanel buttons with commands for scripting:
+#
+#       button {
+#           #icon = gnome-session-halt
+#           image = /usr/share/icons/gnome-session-halt.png
+#           tooltip = Power state change - custom
+#           action = lxterm -e 'bash -c "xscreensaver-command -lock && sleep 3 && sudo /home/.opt/sys-suspend"'
+#       }
+#       button {
+#           #icon = gnome-session-halt
+#           image = /usr/share/icons/gnome-session-halt.png
+#           tooltip = Power state at LXDE
+#           action = /usr/bin/lxsession-logout
+#       }
+#       button {
+#           #icon = gnome-session-halt
+#           image = /usr/share/icons/gnome-session-halt.png
+#           tooltip = Power state at XFCE
+#           action = /usr/bin/xfce4-session-logout
+#       }
+#       button {
+#           #icon = gnome-session-halt
+#           image = /usr/share/icons/gnome-session-halt.png
+#           tooltip = Power state at LXQT
+#           action = /usr/bin/lxqt-leave
+#       }
+#
+##
 
 PS4="+:\${0}:\${LINENO}: "
 set -xeu
 
 declare -r XDG_SESSION_DESKTOP="${XDG_SESSION_DESKTOP:-}"
 
-case "${XDG_SESSION_DESKTOP}" in
+case "${XDG_SESSION_DESKTOP}" in  # If the var. is not set, may export the var in '~/.xinitrc'.
+    openbox_remote)
+        if whiptail --yesno --defaultno --title " question " "End session?" 7 18 ; then
+            openbox --exit
+        fi
+        ;;
     xfce)
         xfce4-session-logout
         ;;
