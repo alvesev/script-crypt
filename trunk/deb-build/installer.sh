@@ -79,6 +79,7 @@ install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/mc-hash-fi
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/mvwnd"                            "${CHROOT}/usr/bin/mvwnd"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/get-ip-default"                   "${CHROOT}/usr/bin/get-ip-default"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/optout"                           "${CHROOT}/usr/bin/optout"
+install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/virtualization-switch"            "${CHROOT}/usr/bin/virtualization-switch"
 
 ln -s "/etc/init.d/sys-suspend-on-lid" "${CHROOT}/etc/rc3.d/S07sys-suspend-on-lid"
 
