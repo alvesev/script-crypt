@@ -36,6 +36,8 @@ declare -r home_skeleton_root="/home/.opt/conf/templates/user-root"
 
 
 test -d "${CHROOT}/usr/bin/"       || install --directory --owner=root --group=root --mode=755 --verbose   "${CHROOT}/usr/bin/"
+test -d "${CHROOT}/usr/share/icons/"          || install --directory --owner=root --group=root --mode=755 --verbose "${CHROOT}/usr/share/icons/"
+test -d "${CHROOT}/usr/share/applications/"   || install --directory --owner=root --group=root --mode=755 --verbose "${CHROOT}/usr/share/applications/"
 test -d "${CHROOT}/etc/profile.d/" || install --directory --owner=root --group=root --mode=755 --verbose   "${CHROOT}/etc/profile.d/"
 test -d "${CHROOT}/etc/init.d/"    || install --directory --owner=root --group=root --mode=755 --verbose   "${CHROOT}/etc/init.d/"
 test -d "${CHROOT}/etc/rc3.d/"     || install --directory --owner=root --group=root --mode=755 --verbose   "${CHROOT}/etc/rc3.d/"
@@ -65,6 +67,8 @@ install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/script-cry
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/fbpanel-launch"                   "${CHROOT}/usr/bin/fbpanel-launch"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/generate-audacity-labels"         "${CHROOT}/usr/bin/generate-audacity-labels"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/bt/trigger-bt-state"              "${CHROOT}/usr/bin/trigger-bt-state"
+install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/bt/trigger-bt-state.svg"          "${CHROOT}/usr/share/icons/trigger-bt-state.svg"
+install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/bt/trigger-bt-state.desktop"      "${CHROOT}/usr/share/applications/trigger-bt-state.desktop"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/bt/bt-connector"                  "${CHROOT}/usr/bin/bt-connector"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/ap-wake-up"                       "${CHROOT}/usr/bin/ap-wake-up"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/refresh-known-test-nodes"         "${CHROOT}/usr/bin/refresh-known-test-nodes"

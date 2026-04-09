@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=Trigger Bluetooth State
+Icon=/usr/share/icons/trigger-bt-state.svg
+Exec=/usr/bin/trigger-bt-state --switch
+Terminal=true
+Categories=Utility;AudioVideo;Audio;
