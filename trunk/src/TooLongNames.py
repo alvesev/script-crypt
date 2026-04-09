@@ -2,7 +2,7 @@
 
 
 #
-#  Copyright 2007-2014 Alex Vesev
+#  Copyright 2007-2025 Alex Vesev
 #
 #  This file is part of Script Crypt.
 #
@@ -21,11 +21,10 @@
 #
 ##
 
-
 eCryptFSFileNameMaxRecommendedLength = 143
 
 aboutText='''
-Utility to evaluate file names length and print name if any one is greater than threshold. There is default threshold value %s. 
+Utility to evaluate a file names length and print a name if anyone is greater than threshold. There is default threshold value %s. Be aware, a software may create temporary filenames by appending an amount of chars to original file name or a name by an end user. 'rsync' is the example with +8 characters.
 ''' % eCryptFSFileNameMaxRecommendedLength
 
 
@@ -36,12 +35,12 @@ import sys
 
 def main():
     args = evaluateCliArgs(argparse.ArgumentParser(description=aboutText))
-    
+
     if args.maxLength: wantedMaxLength = int(args.maxLength)
     else: wantedMaxLength = eCryptFSFileNameMaxRecommendedLength
     dirTop = args.dirTop
 
-    
+
     dirTop = expandPath(dirTop)
     for dirRoot, subDirs, files in os.walk(dirTop):
         for subName in subDirs + files:
@@ -53,7 +52,9 @@ def evaluateCliArgs(parser):
     parser.add_argument('-d', '--dir', dest='dirTop', required=True,
                         help="Top level dir to be used while names search.")
     parser.add_argument('-m', '--max', dest='maxLength', type=int,
-                            help="Threshold value to be compared with a file name length.")
+                            help="Threshold value to be compared with a file name length."
+                            " 'rsync' needs 8 characters for temporary name, thus the maximum will be"
+                            " {}.".format(eCryptFSFileNameMaxRecommendedLength-8))
     args = parser.parse_args()
     return args
 
@@ -75,6 +76,6 @@ def printOut(string):
     except:
         raise Exception("Failed with printing of file/dir name obtained for parent directory '%s'. Is the sub-name have deprecated symbols???"
                             % os.path.dirname(string))
-    
+
 
 if __name__ == "__main__": main()
