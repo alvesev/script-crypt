@@ -46,9 +46,10 @@ import yaml
 import logging
 from logging.handlers import RotatingFileHandler
 from time import sleep
-from os import system
+from os import system, walk
 import sys
 #import fcntl
+import re
 
 
 # # #
@@ -69,7 +70,6 @@ def get_log_file_name():
 
 file_log = get_log_file_name()
 size_log = 1*1024*1024
-lid_state_yaml = "/proc/acpi/button/lid/LID/state"
 
 format = "%(asctime)s:pid=%(process)d:%(filename)s:%(lineno)s: %(message)s"
 if "--debug" in sys.argv:
@@ -113,7 +113,7 @@ def get_conf():
     return conf
 
 
-def validate():
+def validate(lid_state_yaml):
     for exe_file in ("/usr/bin/sudo",
                      "/usr/bin/xscreensaver-command",
                      "/usr/bin/wmctrl",
@@ -126,6 +126,49 @@ def validate():
     if not os.path.exists(lid_state_yaml):
         l.error("Lid state information source"
                 + " '{}' not found at start.".format(lid_state_yaml))
+
+
+def get_lid_state_file():
+
+    dir_lid_kfs = "/proc/acpi/button/lid/"
+    lid_state_yaml = ""
+
+    is_found = False
+    while not lid_state_yaml:
+        for root, subDirs, files in walk(dir_lid_kfs):
+            for d in subDirs:
+                lid_state_yaml = os.path.join(dir_lid_kfs, d, "state")
+                if bool(re.fullmatch(r"LID\d+", d)) \
+                        and os.path.exists(lid_state_yaml):
+                    is_found = True
+                    break
+            if is_found:
+                break
+        if lid_state_yaml:
+            break
+        else:
+            l.error(f"Lid state file is not found in '{dir_lid_kfs}'.")
+            sleep(900)
+
+    return lid_state_yaml
+
+
+def get_lid_state_file():
+    dir_lid_kfs = "/proc/acpi/button/lid/"
+    re_lid_name   = re.compile(r"^LID\d*$")
+    wait_time = 900
+
+    while True:
+        # iterate directly over the entries of the lid directory
+        for entry in os.scandir(dir_lid_kfs):
+            if entry.is_dir() and re_lid_name.fullmatch(entry.name):
+                state_path = os.path.join(entry.path, "state")
+                if os.path.exists(state_path):
+                    return state_path
+
+        l.error(f"Lid state file is not found in '{dir_lid_kfs}'."
+                f" Sleeping for '{wait_time}'")
+        sleep(wait_time)
 
 
 def which(program):
@@ -156,7 +199,7 @@ def fork_child_and_exit_parent():
         sys.exit()
 
 
-def process_lid(conf):
+def process_lid(conf, lid_state_yaml):
 
     l.info("Starting lid state watching."
            + " Using flag from '{}'.".format(lid_state_yaml)
@@ -202,11 +245,14 @@ def process_lid(conf):
 
 if __name__ == "__main__":
 
-    validate()
+    lid_state_yaml = get_lid_state_file()
+
+    validate(lid_state_yaml)
 
     conf = get_conf()
+
 
     if "--debug" not in sys.argv:
         fork_child_and_exit_parent()
 
-    process_lid(conf)
+    process_lid(conf, lid_state_yaml)
