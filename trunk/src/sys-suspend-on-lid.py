@@ -34,7 +34,7 @@ conf_default = {  # Default configuration.
             "wmctrl -k on",
             # "xscreensaver -command -lock",
             # "sudo /usr/sbin/pm-suspend",
-            "/bin/systemctl suspend --ignore-inhibitors"
+            "/bin/systemctl suspend --ignore-inhibitors --force"
         )
     }
 }
