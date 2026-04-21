@@ -159,7 +159,12 @@ elif [ "${op_name}" == "reload-bluetooth" ] ; then
         modprobe -r btusb
         modprobe btusb
         rfkill unblock bluetooth
-        systemctl restart bluetooth
+
+        #systemctl restart bluetooth  # XXX - It is not enough sometime. DE integration issues?
+        systemctl stop bluetooth.service
+        sleep 2
+        systemctl start bluetooth.service
+
     else
         echo "ERROR:$( basename "${0}" ):${LINENO}: Need to be 'root' when used '${arg_name}'." >&2
         exit 1
