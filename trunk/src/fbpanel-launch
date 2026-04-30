@@ -5,12 +5,22 @@ set -xu
 
 XRDP_SESSION="${XRDP_SESSION:-NotSet}"
 
+
+declare -a panel_sides_pool=()
+
+# Use '--secondary' when no need in main panel.
+# The main panel will be skipped.
+if [[ ! "${*}" =~ (^|[[:space:]])(--secondary|-s)([[:space:]]|$) ]] ; then
+    panel_sides_pool+=("TOP")
+fi
+
+
 if [ "${XRDP_SESSION}" == "1" ] ; then
     session_type=REMOTE
-    panel_sides_pool=("TOP" "RIGHT")
+    panel_sides_pool+=("RIGHT")
 else
     session_type=ALL-WM
-    panel_sides_pool=("TOP" "LEFT")
+    panel_sides_pool+=("LEFT")
 fi
 
 
