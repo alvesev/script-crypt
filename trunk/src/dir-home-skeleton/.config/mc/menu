@@ -86,7 +86,7 @@ o       gThumb - open with
 o       Dia - open with
         nohup dia %f %t 1>/dev/null 2>/dev/null &
 
-+= f (\.[xX][cC][fF]|\.[pP][cC][xX]|\.[gG][iI][fF]|\.[pP][nN][gG]|\.[jJ][pP][gG]|\.[jJ][pP][eE][gG]|\.[tT][iI][fF]|\.[tT][iI][fF][fF]|\.[bB][mM][pP])$ & t r
++= f (\.[xX][cC][fF]|\.[pP][cC][xX]|\.[gG][iI][fF]|\.[pP][nN][gG]|\.[jJ][pP][gG]|\.[jJ][pP][eE][gG]|\.[tT][iI][fF]|\.[tT][iI][fF][fF]|\.[bB][mM][pP]|\.[hH][eE][iI][cC])$ & t r
 o       Gimp - open with
         if test -n "%t" ; then
             nohup gimp %t 1>/dev/null 2>/dev/null &
@@ -116,7 +116,13 @@ o       Scribus - open with
         nohup scribus %f %t 1>/dev/null 2>/dev/null &
 
 += f \.[pP][dD][fF]$ & t r
-o       Evince - open with
+o       open PDF - Okular
+        #nohup evince %f %t 1>/dev/null 2>/dev/null &
+        #nohup xreader %f %t 1>/dev/null 2>/dev/null &
+        nohup okular %f %t 1>/dev/null 2>/dev/null &
+
++= f \.[pP][dD][fF]$ & t r
+o       open PDF - Evince
         nohup evince %f %t 1>/dev/null 2>/dev/null &
 
 += f \.[pP][dD][fF]$ & t r
@@ -151,7 +157,7 @@ o       Audacious - enqueue to
         nohup audacious --enqueue-to-temp %t 1>/dev/null 2>/dev/null &
 
 # VLC player and video-audio files names
-+ ! t t & f \.([mM][pP][234]|[wW][eE][bB][mM]|[fF][lL][aA][cC]|[wW][aA][vV]|[oO][gG][gG]|[mM][pP][23]|[wW][aA][vV])$
++ ! t t & f \.([mM][oO][vV]|[mM][pP][234]|[wW][eE][bB][mM]|[fF][lL][aA][cC]|[wW][aA][vV]|[oO][gG][gG]|[mM][pP][23]|[wW][aA][vV])$
 o       VLC - enqueue to
         nohup vlc  %f 1>/dev/null 2>/dev/null &
 + t t & f \.([mM][pP][234]|[wW][eE][bB][mM]|[fF][lL][aA][cC]|[wW][aA][vV]|[oO][gG][gG]|[mM][pP][23]|[wW][aA][vV])$
@@ -166,7 +172,8 @@ o       Transmission - open with
 # djvu
 += f \.([dD][jJ][vV][uU]|[dD][jJ][vV])$ & t r
 o       Evince - open with
-        nohup evince %f %t 1>/dev/null 2>/dev/null &
+        #nohup evince %f %t 1>/dev/null 2>/dev/null &
+        nohup xreader %f %t 1>/dev/null 2>/dev/null &
 
 # FreeMind
 += f \.([mM][mM])$ & t r
@@ -208,6 +215,12 @@ o       Test Zip file integrity
 += f \.([mM][dD])$ & t r
 o       Retext - open with
         nohup retext %f %t 1>/dev/null 2>/dev/null &
++= f \.([mM][dD])$ & t r
+o       BatCat - open with
+        batcat %f %t
++= f \.([mM][dD])$ & t r
+o       Ghostwriter - open with
+        nohup ghostwriter %f %t 1>/dev/null 2>/dev/null &
 += f \.([mM][dD])$ & t r
 o       to HTML and open in browser
         nohup md-to-browser %f %t 1>/dev/null 2>/dev/null &
@@ -285,8 +298,13 @@ c       calculate MD5 checksum
         for fName in %T ; do
             "${CMD}" "${dirNeighbourPanel}/${fName}"
         done
++ t t
+c       create hash files for selected files
+        cd "${dirCurrentPanel}"
+        mc-hash-files %d %t
+        mc-hash-files %D %T
 + ! t t
-c       no files selected for: calculate MD5 checksum
+c       no files selected for: calculate hash/checksum
         /bin/true
 
 + t t
