@@ -1,3 +1,19 @@
+script-crypt (31.4) zara; urgency=low
+
+  * Logger-Out knows about OpenBox.
+  * Laptop lid state tracker and suspend enforce.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Sun, 09 Aug 2026 10:43:00 +0200
+
+script-crypt (31.3) wilma; urgency=low
+
+  * Virtualisation switcher.
+  * Bluetooth state trigger have Desktop file.
+  * Laptop lid state file have a hardware dependent path.
+  * Allow to skip main panel launch during autostart.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Sun, 19 Oct 2025 13:47:00 +0200
+
 script-crypt (30) wilma; urgency=low
 
   * Files tree filter.
