@@ -1,5 +1,20 @@
 shell_patterns=0
 
+###
+##	Notes and descriptions.
+#
+#
+#   '+ t t'
+#   '+ ! t t'
+#
+#       +: Starts a new menu section.
+#      '!': Menu visibility switch, upon a file or directory-or-file is
+#           under cursor.
+#       First 't': The menu is visible if the current panel is a directory.
+#       Second 't': The menu is available (selectable) if the current panel
+#                   is a directory.
+##
+
 ##
 #  Some universal tools section.
 #
@@ -61,7 +76,7 @@ o       Mozilla derivative - open with
 += f (\.[hH][tT][mM][lL]|\.[hH][tT][mM]|\.[xX][hH][tT][mM][lL])$ & t r
 o       WWW browser - open with
         if which browser-current ; then
-            CMD=`which browser-current`
+            CMD=`type -p browser-current`
         else
             CMD=x-www-browser
         fi
@@ -329,17 +344,21 @@ c       no files selected for: print checksum and block counts
         /bin/true
 
 + ! t t
-z       Size of
+z       Size of an item under cursor
         CMD="du -hs"
         $CMD %f
 
 + t t
-z       Size of
+z       Size of selected items
         set %t; CMD="du -hs"
         while [ -n "$1" ]; do
             $CMD "$1"
             shift
         done
+
++ ! t t
+z       Size of the current panel file tree
+        NO_COLOR=true ncdu %d
 
 + t t
 r       multi rename - KRename

@@ -1,24 +1,39 @@
 shell_patterns=0
 
+###
+##	Notes and descriptions.
+#
+#
+#   '+ t t'
+#   '+ ! t t'
+#
+#       +: Starts a new menu section.
+#      '!': Menu item visibility switch, upon a file or directory-or-file is
+#           under cursor.
+#       First 't': The menu is visible if the current panel is a directory.
+#       Second 't': The menu is available (selectable) if the current panel
+#                   is a directory.
+##
+
 ##
 #  Some universal tools section.
 #
-
-e       Edit - Geany
-        CMD=geany
-        nohup $CMD %f %t 1>/dev/null 2>/dev/null &
-
-m       Edit - MEdit
-        CMD=/usr/bin/medit
-        nohup "$CMD" %f %t 1>/dev/null 2>/dev/null &
 
 v       Edit - VIM
         CMD=/usr/bin/vim
         "$CMD" %f %t
 
+v       Edit - Nano
+        CMD=/usr/bin/nano
+        "$CMD" %f %t
+
+v       Edit - MC Edit
+        CMD=/usr/bin/mcedit
+        "$CMD" %f %t
+
 + ! t t
-b       Edit - Bless
-        CMD=bless
+b       Edit - Hexedit
+        CMD=hexedit
         nohup $CMD %f 1>/dev/null 2>/dev/null &
 
 ##
@@ -27,123 +42,25 @@ b       Edit - Bless
 #
 
 += f ^menu$ & t r
-o       MC menu config - open with Geany
-        nohup geany %f %t 1>/dev/null 2>/dev/null &
+o       MC menu config - open with Vim
+        nohup vim %f %t 1>/dev/null 2>/dev/null &
 
-
-# CR Web Site have templates 'content_ru-RU_*' and 'stud_ru-RU'
-+= f (^[cC][oO][nN][tT][eE][nN][tT]_..-.._|^[sS][tT][uU][dD]_..-..) & t r
-o       edit CR Readings site's page template in CP1251
-        nohup medit --encoding CP1251 %f %t 1>/dev/null 2>/dev/null &
-
-+= f \.[tT][xX][tT]$ & t r
-o       Leafpad - open with
-        nohup leafpad %f %t 1>/dev/null 2>/dev/null &
-
-+= f ([cC][oO][nN][fF][iI][gG]|\.[cC][oO][nN][fF]|\.[cC][oO][nN][fF][iI][gG]|\.[gG][iI][tT][iI][gG][nN][oO][rR][eE])$ & t r
-o       MEdit - open with
-        nohup medit %f %t 1>/dev/null 2>/dev/null &
-
-+= f (\.[hH][tT][mM][l]|\.[hH][tT][mM]|\.[xX][hH][tT][mM][l])$ & t r
++= f (\.[hH][tT][mM][lL]|\.[hH][tT][mM]|\.[xX][hH][tT][mM][lL])$ & t r
 o       WWW browser - open with
         if which browser-current ; then
-            CMD=`which browser-current`
+            CMD=`type -p browser-current`
         else
-            CMD=x-www-browser
+            CMD=www-browser
         fi
         echo "Using '${CMD}'." >&2
         nohup "${CMD}" %f %t 1>/dev/null 2>/dev/null &
 
-+= f (\.[hH][tT][mM][l]|\.[hH][tT][mM]|\.[xX][hH][tT][mM][l])$ & t r
-o       SeaMonkey - open with
-        CMD=/usr/bin/seamonkey
-        nohup $CMD %f %t 1>/dev/null 2>/dev/null &
-
 += f (\.[jJ][sS][oO][nN]|\.[yY][aA][mM][lL]|\.[lL][iI][bB][sS][oO][nN][nN][eE][tT]|\.[jJ][sS][oO][nN][nN][eE][tT])$ & t r
-o       Chromium - open with
-        CMD=/usr/bin/chromium-browser
+o       Browser - open with
+        CMD=/usr/bin/links
         nohup $CMD %f %t 1>/dev/null 2>/dev/null &
-
-+= f (\.[pP][cC][xX]|\.[gG][iI][fF]|\.[pP][nN][gG]|\.[jJ][pP][gG]|\.[jJ][pP][eE][gG]|\.[tT][iI][fF]|\.[tT][iI][fF][fF]|\.[bB][mM][pP])$ & t r
-o       gThumb - open with
-        nohup gthumb %f %t 1>/dev/null 2>/dev/null &
-
-+= f \.[dD][iI][aA]$ & t r
-o       Dia - open with
-        nohup dia %f %t 1>/dev/null 2>/dev/null &
-
-+= f (\.[xX][cC][fF]|\.[pP][cC][xX]|\.[gG][iI][fF]|\.[pP][nN][gG]|\.[jJ][pP][gG]|\.[jJ][pP][eE][gG]|\.[tT][iI][fF]|\.[tT][iI][fF][fF]|\.[bB][mM][pP])$ & t r
-o       Gimp - open with
-        nohup gimp %f %t 1>/dev/null 2>/dev/null &
-
-+= f \.[sS][vV][gG]$ & t r
-o       Inkscape - open with
-        nohup inkscape %f %t 1>/dev/null 2>/dev/null &
-
-+= f \.[dD][rR][aA][wW][iI][oO]$ & t r
-o       Drawio - open with
-        nohup drawio %f %t 1>/dev/null 2>/dev/null &
-
-+= f (\.[sS][lL][aA]|\.[sS][lL][aA]\.[gG][zZ])$ & t r
-o       Scribus - open with
-        nohup scribus %f %t 1>/dev/null 2>/dev/null &
-
-+= f \.[pP][dD][fF]$ & t r
-o       Evince - open with
-        nohup evince %f %t 1>/dev/null 2>/dev/null &
-
-+= f \.[pP][dD][fF]$ & t r
-o       Master PDF Editor - open with
-        nohup masterpdfeditor5 %f %t 1>/dev/null 2>/dev/null &
-
-+= f [rR][tT][fF]$ & t r
-o       Rich or similar text format - open with Libre Office
-        nohup libreoffice %f %t 1>/dev/null 2>/dev/null &
-+= f (\.[oO][dD][fF]|\.[oO][dD][tT]|\.[oO][dD][sS])$ & t r
-o       Libre Office document - open with
-        nohup libreoffice %f %t 1>/dev/null 2>/dev/null &
-+= f (\.[dD][oO][cC]|\.[dD][oO][cC][xX]|\.[xX][lL][sS]|\.[xX][lL][sS][xX]|\.[pP][pP][tT]|\.[pP][pP][tT][xX])$ & t r
-o       Little and sleek Office document - open with
-        nohup libreoffice %f %t 1>/dev/null 2>/dev/null &
-
-+= f \.[gG][eE][aA][nN][yY]$ & t r
-o       Geany - open with
-        nohup geany %f %t 1>/dev/null 2>/dev/null &
-
-# Audacity: flac, ...
-+= f \.([fF][lL][aA][cC]|[wW][aA][vV]|[oO][gG][gG]|[mM][pP][23]|[wW][aA][vV])$ & t r
-o       Audacity - open with, the first only
-        nohup audacity %f 1>/dev/null 2>/dev/null &
-
-# Audacious player and sound files names
-+ ! t t & f \.([fF][lL][aA][cC]|[wW][aA][vV]|[oO][gG][gG]|[mM][pP][23]|[wW][aA][vV])$
-o       Audacious - enqueue to
-        nohup audacious --enqueue-to-temp %f 1>/dev/null 2>/dev/null &
-+ t t & f \.([fF][lL][aA][cC]|[wW][aA][vV]|[oO][gG][gG]|[mM][pP][23]|[wW][aA][vV])$
-o       Audacious - enqueue to
-        nohup audacious --enqueue-to-temp %t 1>/dev/null 2>/dev/null &
-
-
-
-# torrent
-+= f \.([tT][oO][rR][rR][eE][nN][tT])$ & t r
-o       Transmission - open with
-        nohup transmission-gtk %f %t 1>/dev/null 2>/dev/null &
-
-# djvu
-+= f \.([dD][jJ][vV][uU]|[dD][jJ][vV])$ & t r
-o       Evince - open with
-        nohup evince %f %t 1>/dev/null 2>/dev/null &
-
-# FreeMind
-+= f \.([mM][mM])$ & t r
-o       FreeMind - open with
-        nohup freemind %f %t 1>/dev/null 2>/dev/null &
 
 # Compressed file
-+= f \.([xX][zZ]|[tT][aA][rR]|[tT][aA][rR]\.7[zZ])$ & t r
-o       File-roller - open with
-        nohup file-roller %f %t 1>/dev/null 2>/dev/null &
 += f \.[zZ][iI][pP]$ & t r
 o       Test Zip file integrity
         err_state=0
@@ -172,27 +89,10 @@ o       Test Zip file integrity
 
 # Markdown
 += f \.([mM][dD])$ & t r
-o       Retext - open with
-        nohup retext %f %t 1>/dev/null 2>/dev/null &
+o       BatCat - open with
+        batcat %f %t
 
 ------------------------------------------------------------
-+ t t
-c       compare files - Meld
-        dirCurrentPanel="%d"
-        dirNeighbourPanel="%D"
-        cliArguments=""
-        for fName in %t ; do
-            cliArguments="${cliArguments} '${dirCurrentPanel}/${fName}'"
-            echo "MC have evaluated from current panel: $cliArguments"
-        done
-        for fName in %T ; do
-            cliArguments="${cliArguments} '${dirNeighbourPanel}/${fName}'"
-            echo "MC have evaluated from opposite panel: $cliArguments"
-        done
-        echo " "
-        echo "MC have resulting files list: $cliArguments"
-        echo " "
-        bash -c "nohup meld $cliArguments 2>/dev/null 1>/dev/null &"
 
 + t t
 c       compare files - ICDiff
@@ -227,29 +127,13 @@ c       calculate MD5 checksum
         for fName in %T ; do
             "${CMD}" "${dirNeighbourPanel}/${fName}"
         done
-+ ! t t
-c       no files selected for: calculate MD5 checksum
-        /bin/true
-
 + t t
-d       compare directories
-        dirCurrentPanel="%d"
-        dirNeighbourPanel="%D"
-        cliArguments=""
-        for fName in %t ; do
-            cliArguments="${cliArguments} '${dirCurrentPanel}/${fName}'"
-            echo "MC have evaluated from current panel: $cliArguments"
-        done
-        for fName in %T ; do
-            cliArguments="${cliArguments} '${dirNeighbourPanel}/${fName}'"
-            echo "MC have evaluated from opposite panel: $cliArguments"
-        done
-        echo " "
-        echo "MC have resulting files list: $cliArguments"
-        echo " "
-        bash -c "nohup /usr/share/smartsynchronize/bin/smartsynchronize.sh $cliArguments 2>/dev/null 1>/dev/null &"
+c       create hash files for selected files
+        cd "${dirCurrentPanel}"
+        mc-hash-files %d %t
+        mc-hash-files %D %T
 + ! t t
-d       no files selected for: compare directories
+c       no files selected for: calculate hash/checksum
         /bin/true
 
 + t t
@@ -274,25 +158,21 @@ c       no files selected for: print checksum and block counts
         /bin/true
 
 + ! t t
-z       Size of
+z       Size of an item under cursor
         CMD="du -hs"
         $CMD %f
 
 + t t
-z       Size of
+z       Size of selected items
         set %t; CMD="du -hs"
         while [ -n "$1" ]; do
             $CMD "$1"
             shift
         done
 
-+ t t
-r       multi rename - KRename
-        CMD="/usr/bin/krename"
-        nohup "${CMD}" %t 1>/dev/null 2>/dev/null &
 + ! t t
-r       no files selected for: multi rename - KRename
-        /bin/true
+z       Size of the current panel file tree
+        NO_COLOR=true ncdu %d
 
 ------------------------------------------------------------
 
@@ -300,14 +180,14 @@ r       no files selected for: multi rename - KRename
 
 =+ ! t t
 p   Print current name and - into clipboard
-        echo "%d/%f"
-        echo -n "%d/%f" | xclip
-        echo -n "%d/%f" | xclip -selection c
+        echo \"%d/%f\"
+        echo -n \"%d/%f\" | xclip
+        echo -n \"%d/%f\" | xclip -selection c
 
 =+ t t
 p   Print selected names and - into clipboard
         set %t
-        as_text_all=$(for name in "${@}" ; do echo "%d/${name}" ; done)
+        as_text_all=$(for name in "${@}" ; do echo "'%d/${name}'" ; done)
         echo -n "${as_text_all}" | xclip
         echo -n "${as_text_all}" | xclip -selection c
         echo "${as_text_all}"
@@ -366,7 +246,19 @@ P   Print selected names as single line and - into clipboard
         tar cf - "$Pwd" | 7za a -si "$tar.tar.7z" && \
         echo "../$tar.tar.7z created."
 
-6       Compress the current subdirectory (Zip)
+6       Compress the current subdirectory (tar.xz)
+        set -eu
+        donor=`basename %d /`
+        f_tar=$donor-`get-timestamp`
+        echo -n "Name of the compressed file (without extension) [$f_tar]: "
+        read tar
+        if [ "$tar"x = x ]; then tar="$f_tar"; fi
+        cd .. && \
+        tar cf - "$donor" | xz -6 --verbose > "$tar.tar.xz.partial" && \
+        mv "$tar.tar.xz.partial" "$tar.tar.xz" && \
+        echo "../$tar.tar.xz created."
+
+7       Compress the current subdirectory (Zip)
         f_out=`basename %d /`-`get-timestamp  --with-seconds`
         Pwd=`basename %d /`
         echo -n "Name of the compressed file (without extension) [$f_out]: "
@@ -452,6 +344,40 @@ Y       Gzip or gunzip selected files
           esac
           # --keep - Keep (don't delete) input files during compression or decompression.
           gzip $DECOMP --verbose --keep "${fName}"
+        done
+
++ ! t t
+x       XZ'ify single file
+        set -eu
+        donor=`basename %f`
+        acceptor=${donor}-`get-timestamp  --with-seconds`.tar.xz
+        if test -e "${acceptor}" ; then
+            echo -ne "\n\n"
+            read -p "Error: file '${acceptor}' already exist. Press 'Enter' key to continue." voidVar
+            exit 1
+        fi
+        dd bs=1 count=1 if="${donor}" of=/dev/null 2>/dev/null \
+            || read -p "Can't read from '${donor}'. Press 'Enter' key to continue." voidVar
+        tar cf - "${donor}" | xz -6 --verbose > "${acceptor}.partial" \
+            && mv "${acceptor}.partial" "${acceptor}" \
+            && echo "'${acceptor}' has been created."
+
++ t t
+x       XZ'ify all selected files (one XZ per file)
+        set -eu
+        for fName in %t ; do
+            donor=`basename "${fName}"`
+            acceptor=${donor}-`get-timestamp  --with-seconds`.tar.xz
+            if test -e "${acceptor}" ; then
+                echo -ne "\n\n"
+                read -p "Error: file '${acceptor}' already exist. Press 'Enter' key to continue." voidVar
+                exit 1
+            fi
+            dd bs=1 count=1 if="${donor}" of=/dev/null 2>/dev/null \
+                || read -p "Can't read from '${donor}'. Press 'Enter' key to continue." voidVar
+            cd %d \
+                && tar cf - "${donor}" | xz -6 --verbose > "${acceptor}" \
+                && echo "'${acceptor}' has been created."
         done
 
 + ! t t
