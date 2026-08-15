@@ -1,7 +1,7 @@
 shell_patterns=0
 
 ###
-##	Notes and descriptions.
+##  Notes and descriptions.
 #
 #
 #   '+ t t'
@@ -371,28 +371,65 @@ r       no files selected for: multi rename - KRename
 ------------------------------------------------------------
 
 # Printout names - Intended to be default, if no other match above.
+#
+# MC internal shielding is applied, but do not work with '$' in
+# a file name, for example, when reveals spaces and single quote
+# marks. Thus, it is a trick to shield the name properly in
+# every possible cases. There is
+#       bash -c 'read -r s ; printf "%q\n" "$s"'
+# However, it will overlap with MC partial quotation, leading to
+# wrong quotation.
+#
+# Pay attention, how `dash` (which is behind `sh` at the moment of
+# writing) implementation of `echo` is mixed with `coreutils`
+# implementation of `echo`. In fact it is automatic, the full path was
+# added for evidence.
 
 =+ ! t t
 p   Print current name and - into clipboard
-        echo \"%d/%f\"
-        echo -n \"%d/%f\" | xclip
-        echo -n \"%d/%f\" | xclip -selection c
+        echo "Shielded name:"
+        echo
+        /usr/bin/echo -n %d/%f | bash -c 'read -r s ; printf "%q\n" "$s"'  # Absence of double quotes in '%d/%f' is crucial in context of internal MC quotation.
+        echo
+        echo In clipboard:
+        echo
+        n=\'%d/%f\'
+        echo "${n}"
+        #echo -n "${n}" | xclip
+        echo -n "${n}" | xclip -selection c
 
 =+ t t
 p   Print selected names and - into clipboard
+        echo
+        echo "Shielded names:"
+        echo
+        for name in %t ; do  # Absence of double quotes in '%t' is crucial in context of internal MC quotation.
+            /usr/bin/echo -n %d/"${name}" | bash -c 'read -r s ; printf "%q\n" "$s"'
+        done
+        echo
+        echo "In clipboard:"
+        echo
         set %t
-        as_text_all=$(for name in "${@}" ; do echo "'%d/${name}'" ; done)
-        echo -n "${as_text_all}" | xclip
-        echo -n "${as_text_all}" | xclip -selection c
+        as_text_all=$(for name in "${@}" ; do /usr/bin/echo "'%d/${name}'" ; done)
         echo "${as_text_all}"
+        #/usr/bin/echo -n "${as_text_all}" | xclip
+        /usr/bin/echo -n "${as_text_all}" | xclip -selection c
 
 =+ t t
 P   Print selected names as single line and - into clipboard
+        echo
+        echo "Shielded names:"
+        echo
         set %t
-        as_text_all=$(for name in "${@}" ; do echo -n "'%d/${name}' " ; done)
-        echo -n "${as_text_all}" | xclip
-        echo -n "${as_text_all}" | xclip -selection c
+        as_text_all=$(for name in "${@}" ; do /usr/bin/echo -n %d/"${name}" | bash -c 'read -r s ; printf "%q    " "$s"' ; done)
         echo "${as_text_all}"
+        echo
+        echo "In clipboard:"
+        echo
+        as_text_all=$(for name in "${@}" ; do /usr/bin/echo -n "'"%d/"${name}'    " ; done)
+        echo "${as_text_all}"
+        #echo -n "${as_text_all}" | xclip
+        echo -n "${as_text_all}" | xclip -selection c
 
 ------------------------------------------------------------
 
