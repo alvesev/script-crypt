@@ -216,13 +216,13 @@ p   Print selected names
         set %t
         as_text_all=$(for name in "${@}" ; do /usr/bin/echo "'%d/${name}'" ; done)
         echo "${as_text_all}"
- 
+
 =+ t t
 P   Print selected names as single line
+        set %t
         #echo
         #echo "Shielded names:"
         #echo
-        #set %t
         #as_text_all=$(for name in "${@}" ; do /usr/bin/echo -n %d/"${name}" | bash -c 'read -r s ; printf "%q    " "$s"' ; done)
         #echo "${as_text_all}"
         #echo
