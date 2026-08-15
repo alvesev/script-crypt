@@ -21,8 +21,8 @@
 ##
 
 
-PS4="+:\${0}:\${LINENO}: "
-set -eu
+PS4="+:\${0}:${LINENO}: "
+set -e
 
 if [ ! -f /etc/bt-connector/conf.json ] ; then
     echo "Creating default '/etc/bt-connector/conf.json'."

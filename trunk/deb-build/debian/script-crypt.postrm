@@ -21,6 +21,6 @@
 ##
 
 
-PS4="+:\${0}:\${LINENO}: "
+PS4="+:\${0}:${LINENO}: "
 set -x
 set -e
