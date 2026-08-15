@@ -70,8 +70,21 @@ o       MEdit - open with
 
 += f (\.[hH][tT][mM][lL]|\.[hH][tT][mM]|\.[xX][hH][tT][mM][lL])$ & t r
 o       Mozilla derivative - open with
-        CMD=/usr/bin/librewolf
-        nohup $CMD --private-window %f %t 1>/dev/null 2>/dev/null &
+        # 'librewolf' will not open a file from CLI when '--private-window' is in use.
+        #CMD=/usr/bin/librewolf
+        #nohup $CMD --private-window %f %t 1>/dev/null 2>/dev/null &
+        if [ -n "%t" ] ; then
+            for path in %t ; do
+                #/usr/bin/echo -n "%d/${path}" | bash -c 'read -r s ; printf "'\''%q'\''\n" "$s"'
+                /usr/bin/echo -n "'%d/${path}'    "
+            done
+        else
+            #/usr/bin/echo -n %d/%f | bash -c 'read -r s ; printf "'\''%q'\''\n" "$s"'
+            /usr/bin/echo -n \'%d/%f\'
+        fi
+        echo
+        echo "WARNING: The browser will not open a file from CLI when '--private-window' is in use."
+        sleep 1
 
 += f (\.[hH][tT][mM][lL]|\.[hH][tT][mM]|\.[xX][hH][tT][mM][lL])$ & t r
 o       WWW browser - open with
@@ -237,8 +250,12 @@ o       BatCat - open with
 o       Ghostwriter - open with
         nohup ghostwriter %f %t 1>/dev/null 2>/dev/null &
 += f \.([mM][dD])$ & t r
-o       to HTML and open in browser
-        nohup md-to-browser %f %t 1>/dev/null 2>/dev/null &
+o       to HTML (open in browser is not supported by the br-r)
+        set -xeu
+        for path in  %f %t ; do
+            #nohup md-to-browser %f %t 1>/dev/null 2>/dev/null &
+            pandoc "${path}" -o "${path}.html"
+        done
 
 ------------------------------------------------------------
 + t t
