@@ -429,7 +429,7 @@ P   Print selected names as single line and - into clipboard
         as_text_all=$(for name in "${@}" ; do /usr/bin/echo -n "'"%d/"${name}'    " ; done)
         echo "${as_text_all}"
         #echo -n "${as_text_all}" | xclip
-        echo -n "${as_text_all}" | xclip -selection c
+        /usr/bin/echo -n "${as_text_all}" | xclip -selection c
 
 ------------------------------------------------------------
 
