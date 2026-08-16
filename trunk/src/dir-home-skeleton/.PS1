@@ -22,13 +22,13 @@
 #NC='\e[0m'
 #######################################################################################
 
-#PS1='${debian_chroot:+($debian_chroot)}\[\033[0;37m\]\u@\[\033[01;32m\]\h\[\033[01;00m\]: \W\[\033[00m\] \[\033[01;32m\]\$\[\033[01;00m\] '
-#PS1="\[\e[01;34m\]┌─[\[\e[0m\u\e[01;34m\]]──[\[\e[40;01;37m\]${HOSTNAME%%.*}\[\e[0;01;34m\]]: \[\e[0m\]\W\[\e[01;34m\] |\[\e[01;34m\]\n\[\e[01;34m\]└──\[\e[01;34m\] \[\e[0m\]"
-#PS1="\[\e[01;34m\]__[\[\e[0m\u\e[01;34m\]]__[\[\e[40;01;37m\]${HOSTNAME%%.*}\[\e[0;01;34m\]]: \[\e[0m\]\W\[\e[01;34m\] |\[\e[01;34m\]\n\[\e[01;34m\]\__\[\e[01;34m\] \[\e[0m\]"
+_ps1_main_color_code=32
 
-#PS1="\[\e[01;34m\]__[\[\e[0m\u\e[01;34m\]]__[\[\e[40;01;37m\]${HOSTNAME%%.*}\[\e[0;01;34m\]]: \[\e[0m\]\W\[\e[01;34m\] |\[\e[01;34m\]\n\[\e[01;34m\]\$(bash /home/.opt/get-git-info.sh)\__\[\e[01;34m\] \[\e[0m\]"
+#PS1='${debian_chroot:+($debian_chroot)}\[\033[0;37m\]\u@\[\033[01;${_ps1_main_color_code}m\]\h\[\033[01;00m\]: \W\[\033[00m\] \[\033[01;${_ps1_main_color_code}m\]\$\[\033[01;00m\] '
+#PS1="\[\e[01;${_ps1_main_color_code}m\]__[\[\e[0m\u\e[01;${_ps1_main_color_code}m\]]__[\[\e[40;01;37m\]${HOSTNAME%%.*}\[\e[0;01;${_ps1_main_color_code}m\]]: \[\e[0m\]\W\[\e[01;${_ps1_main_color_code}m\] |\[\e[01;${_ps1_main_color_code}m\]\n\[\e[01;${_ps1_main_color_code}m\]\__\[\e[01;${_ps1_main_color_code}m\] \[\e[0m\]"
+#PS1="\[\e[01;${_ps1_main_color_code}m\]__[\[\e[0m\u\e[01;${_ps1_main_color_code}m\]]__[\[\e[40;01;37m\]${HOSTNAME%%.*}\[\e[0;01;${_ps1_main_color_code}m\]]: \[\e[0m\]\W\[\e[01;${_ps1_main_color_code}m\] |\[\e[01;${_ps1_main_color_code}m\]\n\[\e[01;${_ps1_main_color_code}m\]\$(bash /home/.opt/get-git-info.sh)\__\[\e[01;${_ps1_main_color_code}m\] \[\e[0m\]"
 
-_ps1_main_color_code=34
+#PS1="\[\e[01;${_ps1_main_color_code}m\]┌─[\[\e[0m\u\e[01;${_ps1_main_color_code}m\]]──[\[\e[40;01;37m\]${HOSTNAME%%.*}\[\e[0;01;${_ps1_main_color_code}m\]]: \[\e[0m\]\W\[\e[01;${_ps1_main_color_code}m\] |\[\e[01;${_ps1_main_color_code}m\]\n\[\e[01;${_ps1_main_color_code}m\]└──\[\e[01;${_ps1_main_color_code}m\] \[\e[0m\]"
 
 #PS1="\[\e[01;${_ps1_main_color_code}m\] ╭──┤\[\e[1;${_ps1_main_color_code}m\u\e[01;${_ps1_main_color_code}m\]├─┤\[\e[44;1;37m\]\h\[\e[0;01;${_ps1_main_color_code}m\]├────○\n╭┴──○\n╰─┤\[\e[0m\]\w\[\e[01;${_ps1_main_color_code}m\]├─○ \[\e[0m\]"
 #PS1="\[\e[01;${_ps1_main_color_code}m\] ╭──┤ \[\e[0;0;37m\u\e[0;01;30m\]@\[\e[01;1;${_ps1_main_color_code}m\]\h\[\e[0;01;${_ps1_main_color_code}m\] ├────○\n╭┴──○\n╰─┤ \[\e[0m\]\w\[\e[01;${_ps1_main_color_code}m\] ├─○ \[\e[0m\]"
