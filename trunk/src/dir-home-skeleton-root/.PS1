@@ -24,7 +24,7 @@
 
 _ps1_main_color_code=31
 
-PS1='${debian_chroot:+($debian_chroot)}\[\033[0;37m\]\u@\[\033[01;${_ps1_main_color_code}m\]\h\[\033[01;00m\]: \W\[\033[00m\] \[\033[01;${_ps1_main_color_code}m\]\$\[\033[01;00m\] '
+PS1='${debian_chroot:+($debian_chroot)}\[\033[0;37m\]\u@\[\033[01;${_ps1_main_color_code}m\]\h\[\033[01;00m\]: \W\[\033[00m\] \[\033[01;${_ps1_main_color_code}m\]#\[\033[01;00m\] '
 #PS1="\[\e[01;${_ps1_main_color_code}m\]__[\[\e[0m\u\e[01;${_ps1_main_color_code}m\]]__[\[\e[40;01;37m\]${HOSTNAME%%.*}\[\e[0;01;${_ps1_main_color_code}m\]]: \[\e[0m\]\W\[\e[01;${_ps1_main_color_code}m\] |\[\e[01;${_ps1_main_color_code}m\]\n\[\e[01;${_ps1_main_color_code}m\]\__\[\e[01;${_ps1_main_color_code}m\] \[\e[0m\]"
 #PS1="\[\e[01;${_ps1_main_color_code}m\]__[\[\e[0m\u\e[01;${_ps1_main_color_code}m\]]__[\[\e[40;01;37m\]${HOSTNAME%%.*}\[\e[0;01;${_ps1_main_color_code}m\]]: \[\e[0m\]\W\[\e[01;${_ps1_main_color_code}m\] |\[\e[01;${_ps1_main_color_code}m\]\n\[\e[01;${_ps1_main_color_code}m\]\$(bash /home/.opt/get-git-info.sh)\__\[\e[01;${_ps1_main_color_code}m\] \[\e[0m\]"
 
