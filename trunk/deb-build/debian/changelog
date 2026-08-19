@@ -1,3 +1,10 @@
+script-crypt (32.0.3) zara; urgency=low
+
+  * Midnight Commander menu changed. File colors upgraded.
+  * Suspend on lid default configuration is installed as a separated file.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Wed, 18 Aug 2026 13:29:00 +0200
+
 script-crypt (31.4) zara; urgency=low
 
   * Logger-Out knows about OpenBox.
