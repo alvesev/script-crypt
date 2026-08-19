@@ -31,6 +31,7 @@ file_conf_pool = (
 conf_default = {  # Default configuration.
     "actions": {
         "on_close": (
+            # "true",
             "wmctrl -k on",
             # "xscreensaver -command -lock",
             # "sudo /usr/sbin/pm-suspend",

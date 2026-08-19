@@ -56,7 +56,7 @@ install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/encrypt-fo
 install --owner=root --group=root --mode=644 --verbose "${DIR_ORIGIN}/settings/custom-exec-path.sh"     "${CHROOT}/etc/profile.d/custom-exec-path.sh"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/sys-suspend-on-lid.py"            "${CHROOT}/usr/bin/sys-suspend-on-lid"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/settings/sys-suspend-on-lid.sh"   "${CHROOT}/etc/init.d/sys-suspend-on-lid"
-install --owner=root --group=root --mode=644 --verbose "${DIR_ORIGIN}/sys-suspend-on-lid.yaml"          "${CHROOT}/etc/sys-suspend-on-lid.yaml"
+install --owner=root --group=root --mode=644 --verbose "${DIR_ORIGIN}/sys-suspend-on-lid.yaml.default"  "${CHROOT}/etc/sys-suspend-on-lid.yaml.default"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/mc-wrapper-root-custom"           "${CHROOT}/usr/bin/mc-wrapper-root-custom"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/mc-wrapper-user-custom"           "${CHROOT}/usr/bin/mc-wrapper-user-custom"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/remove-photos-x-attr"             "${CHROOT}/usr/bin/remove-photos-x-attr"
