@@ -21,6 +21,18 @@
 
 declare -r fth="$( basename "${0}" )"
 PS4="+:$( hostname -f ):${fth}:\${LINENO}: "
+
+if [[ "${*}" =~ (^|[[:space:]])(-h|--help)([[:space:]]|$) ]] ; then
+    echo "Files tree splitter.
+
+SYNOPSIS:
+    $( basename "${0}" ) <dir_top> [<sub_path>...]
+
+First argument is the top level directory at which to split.
+Rest of the arguments are a target paths for extract under the top level directory."
+    exit
+fi
+
 if [[ "${*}" =~ (^|[[:space:]])(-v|--verbose)([[:space:]]|$) ]] ; then set -x ; fi
 set -eu
 
@@ -29,8 +41,6 @@ trap "echo 'INFO:${fth}:${LINENO}: Do exit.' " EXIT
 trap "echo 'ERROR:${fth}:${LINENO}: Has been interrupted.' ; exit 1" INT TERM HUP
 
 declare -r d_top="$( realpath -s "${1}" )"
-declare    target="$( realpath -s "${2}" )"
-
 declare -r d_opt_out="${d_top}_opt_out"
 
 ###
@@ -52,9 +62,10 @@ function clean_up_path {
 
 
 function get_reminder() {
+    # Strip top level directory from the path specified.
     set -e
-    local full="${1}"
-    local reminder
+    local full="${1}"  # Full path with top level directory.
+    local reminder  # A path with stripped top level directory.
 
     full="${1#./}"  # Left strip './'.
     full="${full%/}"  # Right strip spacer '/'.
@@ -111,24 +122,53 @@ function inherit_attr {
 
 if [ ! -d "${d_top}" ] ; then
     set +x
-    echo "ERROR:${fth}:${LINENO}: '${d_top}' is not a directory or not exist." >&2
+    echo "ERROR:${fth}:${LINENO}: '${d_top}' is not a directory or does not exist." >&2
+    exit 1
+fi
+
+all_exist=true
+for p in "${@}" ; do
+    if [ ! -e "${p}" ] ; then
+        set +x
+        echo "ERROR:${fth}:${LINENO}: '${p}' does not exist." >&2
+        all_exist=false
+    fi
+done
+if [ "${all_exist,,}" == "false" ] ; then
     exit 1
 fi
 
 mkdir -p "${d_opt_out}"
 
-target="$( clean_up_path "${target}" )"
-reminder="$( get_reminder "${target}" )"
-d_acceptor_parent="${d_opt_out}/${reminder%/*}"
-d_acceptor_parent="${d_acceptor_parent%/}"
+shift 1
+while [ "${#}" != "0" ] ; do
+    declare    target="$( realpath -s "${1}" )"
 
-echo "INFO:${fth}:${LINENO}: Target:   ${target}" >&2
-echo "INFO:${fth}:${LINENO}: Acceptor: ${d_acceptor_parent}" >&2
+    target="$( clean_up_path "${target}" )"
+    reminder="$( get_reminder "${target}" )"
+    d_acceptor_parent="${d_opt_out}/${reminder%/*}"
+    d_acceptor_parent="${d_acceptor_parent%/}"
 
-mkdir -p "${d_acceptor_parent}"
-mv "${target}" "${d_acceptor_parent}"
-inherit_attr "${target}" "${d_acceptor_parent}"
+    echo "INFO:${fth}:${LINENO}: Target:   ${target}" >&2
+    echo "INFO:${fth}:${LINENO}: Acceptor: ${d_acceptor_parent}" >&2
+
+    if  [ -d "${target}" ] && [ -d "${d_acceptor_parent}" ] ; then
+        rsync -av --remove-source-files "${target}" "${d_acceptor_parent}"
+        inherit_attr "${target}" "${d_acceptor_parent}"
+        if find "${target}" -type f -quit | grep --quiet . ; then
+            set +x
+            echo "ERROR:${fth}:${LINENO}: Target path '${target}' still have files, can not be removed." >&2
+            exit 1
+        else
+            rm -rf "${target}"
+        fi
+    else
+        mkdir -p "${d_acceptor_parent}"
+        mv "${target}" "${d_acceptor_parent}"
+        inherit_attr "${target}" "${d_acceptor_parent}"
+    fi
+
+    shift 1
+done
 
 echo "INFO:${fth}:${LINENO}: Job done." >&2
-
-true : Job done.
