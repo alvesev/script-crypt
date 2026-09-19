@@ -5,7 +5,7 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-HISTTIMEFORMAT="%a_%Y-%m-%d_%H:%M:%S|  "
+HISTTIMEFORMAT="%Y-%m-%d_%H:%M:%S_%a|  "
 
 # don't put duplicate lines in the history. See bash(1) for more options
 # ... or force ignoredups and ignorespace

@@ -37,8 +37,8 @@ alias get-tag-time-full="date '+%Y-%m-%d-%H%M$( date '+%z' | sed -e 's#-#m#g;s#+
 alias get-tag-time-sec="date '+%Y-%m-%d-%H%M$( date '+%z' | sed -e 's#-#m#g;s#+#p#g' )-%S' "
 
 while read fName ; do
-    source "${fName}"
-done <<< "$( find ~ -maxdepth 1 -type f \( -name ".bash_aliases_*" -not -iname "*.swp" \) )"
+    [ -z "${fName}" ] || source "${fName}"
+done <<< "$( find ~ -maxdepth 1 -type f \( -name ".bash_aliases_*" -not -iname "*.swp" -not -iname "*~" \) )"  # '~' as suffix is used by Ansible for back-up files.
 
 if [ -e /usr/bin/mc-wrapper-root-custom ] ; then
     alias mc='/usr/bin/mc-wrapper-root-custom'
