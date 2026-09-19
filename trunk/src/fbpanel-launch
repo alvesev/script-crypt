@@ -1,32 +1,82 @@
 #!/bin/bash
+#
+#  Copyright 2007-2026 Alex Vesev
+#
+#  This file is part of Script Crypt.
+#
+#  Script Crypt is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Script Crypt is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Script Crypt. If not, see <https://www.gnu.org/licenses/>.
+#
+##
 
 PS4="+:\${0}:\${LINENO}: "
 set -xu
 
+error_state="${error_state:-0}"
+
 XRDP_SESSION="${XRDP_SESSION:-NotSet}"
 
-
-declare -a panel_sides_pool=()
-
-# Use '--secondary' when no need in main panel.
-# The main panel will be skipped.
-if [[ ! "${*}" =~ (^|[[:space:]])(--secondary|-s)([[:space:]]|$) ]] ; then
+function select_primary_panels {
     panel_sides_pool+=("TOP")
-fi
+}
 
 
-if [ "${XRDP_SESSION}" == "1" ] ; then
-    session_type=REMOTE
-    panel_sides_pool+=("RIGHT")
+function select_secondary_panels {
+    if [ "${XRDP_SESSION}" == "1" ] ; then
+        panel_sides_pool+=("RIGHT")
+    else
+        panel_sides_pool+=("LEFT")
+    fi
+}
+
+
+function select_session_type {
+    if [ "${XRDP_SESSION}" == "1" ] ; then
+        session_type=REMOTE
+    else
+        session_type=ALL-WM
+    fi
+}
+
+# #
+ #
+#
+
+declare     select_session_type=NotSet
+declare -a  panel_sides_pool=()
+
+if [[ "${*}" =~ (^|[[:space:]])(--primary|-p)([[:space:]]|$) ]] ; then
+    select_primary_panels
+elif [[ "${*}" =~ (^|[[:space:]])(--secondary|-s)([[:space:]]|$) ]] ; then
+    select_secondary_panels
 else
-    session_type=ALL-WM
-    panel_sides_pool+=("LEFT")
+    select_primary_panels
+    select_secondary_panels
 fi
-
 
 for side in "${panel_sides_pool[@]}" ; do
-    nohup fbpanel \
-        --profile \
-            "${USER}.$(hostname)_${session_type}_MAIN_${side}_fbPanel-6-1.conf" \
-                2>/dev/null 1>/dev/null &
+    select_session_type
+    f_profile="${USER}.$(hostname)_${session_type}_MAIN_${side}_fbPanel-6-1.conf"
+    if ! pgrep --list-full fbpanel | grep --quiet "${f_profile}" ; then
+        nohup fbpanel \
+            --profile \
+                "${USER}.$(hostname)_${session_type}_MAIN_${side}_fbPanel-6-1.conf" \
+                    2>/dev/null 1>/dev/null &
+    else
+        error_state=1
+        true : ERROR : skipping launch, as FBPanel is already running with ${f_profile}
+    fi
 done
+
+true : Job done.
+exit $error_state
