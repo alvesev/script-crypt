@@ -1,9 +1,10 @@
-script-crypt (32.0.3) zara; urgency=low
+script-crypt (32.0.4) zara; urgency=low
 
   * Midnight Commander menu changed. File colors upgraded.
   * Suspend on lid default configuration is installed as a separated file.
+  * FBPanel launcher can start a panel more selectively.
 
- -- Alex Vesev <alex.vesev@gmail.com>  Wed, 18 Aug 2026 13:29:00 +0200
+ -- Alex Vesev <alex.vesev@gmail.com>  Sat, 17 Sep 2026 17:24:00 +0200
 
 script-crypt (31.4) zara; urgency=low
 
