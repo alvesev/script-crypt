@@ -1,0 +1,60 @@
+#!/bin/bash
+
+declare -r fth_parent="${0##*/}"
+PS4="+:${0##*/}:\${LINENO}: "
+set -u
+
+declare -a target_cmd=("xscreensaver")
+
+###
+##
+#
+
+function auto_wake_up {
+    local the_exe="${1?Target executable file was not specified as function argument.}"
+    local f_lock="/tmp/${fth_parent}_${USER}.lock"
+
+    exec 9>"${f_lock}"  # 'flock' later binds the lock to the opened file descriptor, which is bound to the inode, the file unlinking will not delete the inode for 'flock', new file will lead to a bindings to another inode and split brains effect - do not delete the file or implement it in a sensible way.
+    if ! flock -n 9 ; then
+        logger --stderr "WARNING:${fth_parent}:${FUNCNAME[0]}: Already running the wake up loop. Do nothing." || true
+        return 0
+    fi
+
+    while :
+    do
+        "${@}" &
+        wait
+        logger --stderr "DEBUG:${fth_parent}:${FUNCNAME[0]}: '${the_exe}' has been relaunched." || true
+    done
+}
+export fth_parent
+export -f auto_wake_up
+
+###
+##
+#
+
+if ps -u "${USER}" -o exe \
+    | grep \
+        --quiet \
+        --extended-regexp \
+        "(^|/)${target_cmd[0]}$"
+then
+    logger --stderr "DEBUG:${0##*/}:${LINENO}: '${target_cmd[0]}' is already running. Skipping launch." || true
+else
+    nohup bash -c "auto_wake_up '${target_cmd[0]}'" 1>/dev/null 2>/dev/null &
+
+    for idx in 1 2 3 4 ; do
+        if xscreensaver-command -time 1>/dev/null ; then
+            break
+        else
+            sleep 2
+        fi
+    done
+
+    if ! xscreensaver-command -time 1>/dev/null ; then
+        logger --stderr "ERROR:${0##*/}:${LINENO}: '${target_cmd[0]}' still is not running." || true
+    fi
+fi
+
+true : Job done.

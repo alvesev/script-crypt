@@ -1,0 +1,21 @@
+#!/bin/bash
+#
+#   nohup "${0}" 1>/dev/null 2>/dev/null &
+#
+##
+
+declare -r fth_parent="${0##*/}"
+PS4="+:${0##*/}:\${LINENO}: "
+set -eu
+
+if ! xscreensaver-command -time 1>/dev/null ; then
+    xscreensaver-wake-up || true
+fi
+
+if xscreensaver-command -time 1>/dev/null ; then
+    xscreensaver-command -lock 1>/dev/null
+else
+    logger --stderr "ERROR:${fth}:${LINENO}: XScreenSaver is not running." || true
+fi
+
+true : Job done.
