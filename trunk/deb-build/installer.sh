@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#  Copyright 2007-2025 Alex Vesev
+#  Copyright 2007-2026 Alex Vesev
 #
 #  This file is part of Script Crypt.
 #
@@ -84,6 +84,8 @@ install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/mvwnd"    
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/get-ip-default"                   "${CHROOT}/usr/bin/get-ip-default"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/optout"                           "${CHROOT}/usr/bin/optout"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/virtualization-switch"            "${CHROOT}/usr/bin/virtualization-switch"
+install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/xscreensaver-wake-up"             "${CHROOT}/usr/bin/xscreensaver-wake-up"
+install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/xscreensaver-lock"                "${CHROOT}/usr/bin/xscreensaver-lock"
 
 ln -s "/etc/init.d/sys-suspend-on-lid" "${CHROOT}/etc/rc3.d/S07sys-suspend-on-lid"
 
