@@ -28,25 +28,9 @@ alias sa='source ~/.bash_aliases'
 alias ls='ls --color=auto --time-style="+%Y-%m-%d %H:%M" --group-directories-first'
 alias ll='ls -alF --time-style="+%Y-%m-%d %H:%M" --group-directories-first'
 alias la='ls -A --time-style="+%Y-%m-%d %H:%M" --group-directories-first'
-alias l='ls -CF --time-style="+%Y-%m-%d %H:%M" --group-directories-first'
+#alias l='ls -CF --time-style="+%Y-%m-%d %H:%M" --group-directories-first'
 
-alias h='history | less +G'
-fzf-history() {
-    local selected_command;
-    selected_command=$(history \
-                        | fzf  --tac --no-sort --exact --preview-window=wrap \
-                        | awk '{$1=""; \
-                                $2=""; \
-                                sub(/^ +/, ""); \
-                                print $0}');
-    if [ -n "$selected_command" ]; then
-        READLINE_LINE="$selected_command";
-        READLINE_POINT=${#READLINE_LINE};
-    fi;
-}  # sudo apt-get install fzf
-if type fzf 1>/dev/null 2>/dev/null ; then bind -x '"\C-r": fzf-history' ; fi
-
-alias g='egrep --color=auto'
+alias g='grep --extended-regexp --color=auto'
 
 alias mc='/usr/bin/mc-wrapper-user-custom --bright'
 alias mcb='/usr/bin/mc-wrapper-user-custom --bright'
@@ -55,6 +39,7 @@ alias mc-direct='/usr/bin/mc'
 
 alias set-clip="xclip -selection c"
 alias get-clip="xclip -selection c -o"
+alias fold-text-from-clipboard="echo ; xclip -selection c -o | fold -s -w 70 ; echo"
 
 alias p='pwd'
 
@@ -82,3 +67,7 @@ alias rc="reset ; clear"  # Also 'rc' is implementation of the AT&T Plan 9 shell
 
 alias py2="python2"
 alias py3="python3"
+
+# Also 'ncdu' have 'NO_COLOR=true' environment variable.
+alias ncdu="ncdu --color=off"
+

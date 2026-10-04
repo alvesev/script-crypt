@@ -5,17 +5,17 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-HISTTIMEFORMAT="%a_%Y-%m-%d_%H:%M:%S|  "
+HISTTIMEFORMAT="%Y-%m-%d_%H:%M:%S_%a|  "
 
 # don't put duplicate lines or lines starting with space in the history.
-# See bash(1) for more options
+# See bash(1) for more options. 'ignoreboth' stands for 'ignoredups:ignorespace'.
 HISTCONTROL=ignoreboth
 
 # append to the history file, don't overwrite it
 shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=8000
+HISTSIZE=22000
 HISTFILESIZE=22000
 
 # check the window size after each command and, if necessary,
@@ -91,7 +91,7 @@ fi
 # some more ls aliases
 alias ll='ls -alF --time-style="+%Y-%m-%d %H:%M" --group-directories-first'
 alias la='ls -A --time-style="+%Y-%m-%d %H:%M" --group-directories-first'
-alias l='ls -CF --time-style="+%Y-%m-%d %H:%M" --group-directories-first'
+#alias l='ls -CF --time-style="+%Y-%m-%d %H:%M" --group-directories-first'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
@@ -113,5 +113,15 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
 fi
 
-export PATH="${PATH}:/home/.opt"
+if [ -f ~/.PATH ] ; then
+    p_buffer=""
+    while read p ; do
+        if [[ -n "${p}" && ! "${p}" =~ ^[[:space:]]*# ]]; then  # 'case' can be used for POSIX, but no '[[:space:]]*' or similar reg.ex. support without sub-process creation time waste.
+            p_buffer+="${p}:"
+        fi
+    done < ~/.PATH
+    export PATH="${p_buffer}${PATH}"
+    unset p p_buffer
+fi
 
+export NO_COLOR="true"  # 'ncdu' coloring turn off. See 'man ncdu'.
