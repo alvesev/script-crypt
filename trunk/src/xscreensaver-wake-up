@@ -4,7 +4,7 @@ declare -r fth_parent="${0##*/}"
 PS4="+:${0##*/}:\${LINENO}: "
 set -u
 
-declare -a target_cmd=("xscreensaver")
+declare -a target_cmd=("xscreensaver" "--no-splash")
 
 ###
 ##
@@ -42,7 +42,7 @@ if ps -u "${USER}" -o exe \
 then
     logger --stderr "DEBUG:${0##*/}:${LINENO}: '${target_cmd[0]}' is already running. Skipping launch." || true
 else
-    nohup bash -c "auto_wake_up '${target_cmd[0]}'" 1>/dev/null 2>/dev/null &
+    nohup bash -c 'auto_wake_up "$@"' _ "${target_cmd[@]}" 1>/dev/null 2>/dev/null &  # See 'man bash' about '-c'.
 
     for idx in 1 2 3 4 ; do
         if xscreensaver-command -time 1>/dev/null ; then
