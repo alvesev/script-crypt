@@ -15,7 +15,7 @@ fi
 if xscreensaver-command -time 1>/dev/null ; then
     xscreensaver-command -lock 1>/dev/null
 else
-    logger --stderr "ERROR:${fth}:${LINENO}: XScreenSaver is not running." || true
+    logger --stderr "ERROR:${0##*/}:${LINENO}: XScreenSaver is not running." || true
 fi
 
 true : Job done.
