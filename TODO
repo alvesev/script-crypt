@@ -1,3 +1,5 @@
 TODO:
 
+- MC skins should be in `~/.local/share/mc/skins` instead of `~/.config/mc/skins`.
+
 BUGS:
