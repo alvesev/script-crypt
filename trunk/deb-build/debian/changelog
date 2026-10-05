@@ -1,9 +1,15 @@
+script-crypt (32.2.2) zara; urgency=low
+
+  * Audio Bluetooth consumers processing in context of multi-user sessions.
+
+ -- Alex Vesev <alex.vesev@gmail.com>  Mon, 05 Oct 2026 20:12:00 +0200
+
 script-crypt (32.2.1) zara; urgency=low
 
   * Screensaver processors.
   * End-user templates.
 
- -- Alex Vesev <alex.vesev@gmail.com>  Sun, 10 Oct 2026 16:53:00 +0200
+ -- Alex Vesev <alex.vesev@gmail.com>  Sun, 04 Oct 2026 16:53:00 +0200
 
 script-crypt (32.2.0) zara; urgency=low
 

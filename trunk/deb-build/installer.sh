@@ -86,6 +86,7 @@ install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/optout"   
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/virtualization-switch"            "${CHROOT}/usr/bin/virtualization-switch"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/xscreensaver-wake-up"             "${CHROOT}/usr/bin/xscreensaver-wake-up"
 install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/xscreensaver-lock"                "${CHROOT}/usr/bin/xscreensaver-lock"
+install --owner=root --group=root --mode=755 --verbose "${DIR_ORIGIN}/terminate-audio-racers"           "${CHROOT}/usr/bin/terminate-audio-racers"
 
 ln -s "/etc/init.d/sys-suspend-on-lid" "${CHROOT}/etc/rc3.d/S07sys-suspend-on-lid"
 

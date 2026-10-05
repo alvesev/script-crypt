@@ -1,0 +1,39 @@
+#!/usr/bin/bash
+
+PS4="+:${0##*/}:\${LINENO}: "
+set -xeu
+
+
+function target_proc_info {
+    ps aux | grep -Ew "obexd|pipewire" | grep -Ev "^${USER}"
+}
+export -f target_proc_info
+
+
+function target_proc_pid {
+    target_proc_info | awk '{print $2}'
+}
+export -f target_proc_pid
+
+
+if [ -n "$( target_proc_info )" ]
+then
+    sudo kill $( target_proc_pid )
+
+    declare -ra attempts=(1 2 3 4)
+    for idx in "${attempts[@]}" ; do
+        if [ -n "$( target_proc_info )" ]
+        then
+            sleep 1
+            if [ "${idx}" == "${#attempts[@]}" ] ; then
+                sudo kill -9 $( target_proc_pid )
+            else
+                sudo kill $( target_proc_pid )
+            fi
+        else
+            break
+        fi
+    done
+fi
+
+true : Job done.
