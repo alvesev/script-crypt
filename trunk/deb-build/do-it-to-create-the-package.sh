@@ -38,6 +38,8 @@ pushd "${dir_this}"
 echo "INFO:${0}:${LINENO}: Building the package."
 fakeroot dpkg-buildpackage -b -us -uc # XXX - GPG sign?
 
+declare -r packageVersion="$( dpkg-parsechangelog -S Version )"
+
 pushd ..
 while read f_name ; do
     if [ -n "${f_name}" ] && [ ! -f "${f_name}.md5" ] ; then
@@ -60,6 +62,16 @@ rm -rf ./debian/${packageName}/
 rm -rf ./debian/${packageName}.substvars
 rm -rf ./debian/stamp-makefile-build
 rm -rf ./debian/stamp-makefile-install
+
+if whiptail \
+        --title " question " \
+        --defaultno \
+        --yesno "Tag the release as 'release_${packageVersion}'?" \
+        0 0
+then
+    echo "INFO:${0}:${LINENO}: Tagging the release as 'release_${packageVersion}'."
+    git tag "release_${packageVersion}"
+fi
 
 set +x
 echo -ne "\n\n"
