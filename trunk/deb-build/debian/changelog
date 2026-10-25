@@ -2,7 +2,7 @@ script-crypt (33.0.0) zara; urgency=low
 
   * Pointer device switcher added.
 
- -- Alex Vesev <alex.vesev@gmail.com>  Sun, 25 Oct 2026 13:47:00 +0200
+ -- Alex Vesev <alex.vesev@gmail.com>  Sun, 25 Oct 2026 13:47:00 +0100
 
 script-crypt (32.2.2) zara; urgency=low
 
